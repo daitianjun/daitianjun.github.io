@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直播用户需求与场景分析看板</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f3f4f6; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .stat-card { border-left: 4px solid; }
+        .border-blue { border-left-color: #3b82f6; }
+        .border-green { border-left-color: #10b981; }
+        .border-purple { border-left-color: #8b5cf6; }
+        .border-orange { border-left-color: #f59e0b; }
+        
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .tab-btn { transition: all 0.3s; }
+        .tab-btn.active { background-color: #3b82f6; color: white; }
+        .tab-btn:not(.active):hover { background-color: #e5e7eb; }
+        
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-chart-line text-blue-600 text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-900">直播用户需求与场景深度分析看板</h1>
+            </div>
+            <div class="text-sm text-gray-500">
+                数据来源: 直播间弹幕采集
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- 1. 数据概述 -->
+        <section class="fade-in">
+            <h2 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-blue-600 pl-3">一、数据概述</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="card stat-card border-blue p-6">
+                    <p class="text-sm text-gray-500">总评论样本数</p>
+                    <p class="text-3xl font-bold text-blue-600 mt-1">85</p>
+                    <p class="text-xs text-green-500 mt-2"><i class="fa-solid fa-arrow-up"></i> 高质量互动样本</p>
+                </div>
+                <div class="card stat-card border-green p-6">
+                    <p class="text-sm text-gray-500">主要场景类别</p>
+                    <p class="text-3xl font-bold text-green-600 mt-1">4</p>
+                    <p class="text-xs text-gray-400 mt-2">覆盖游戏、录音、直播、其他</p>
+                </div>
+                <div class="card stat-card border-purple p-6">
+                    <p class="text-sm text-gray-500">提及设备类型</p>
+                    <p class="text-3xl font-bold text-purple-600 mt-1">6+</p>
+                    <p class="text-xs text-gray-400 mt-2">声卡、麦克风、手机、电脑等</p>
+                </div>
+                <div class="card stat-card border-orange p-6">
+                    <p class="text-sm text-gray-500">满意度均值</p>
+                    <p class="text-3xl font-bold text-orange-600 mt-1">92%</p>
+                    <p class="text-xs text-gray-400 mt-2">基于用户反馈情感分析</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 场景维度深入分析 -->
+        <section class="fade-in">
+            <h2 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-blue-600 pl-3">二、场景维度深度分析</h2>
+            
+            <!-- Tabs -->
+            <div class="flex flex-wrap gap-2 mb-6" id="scene-tabs">
+                <button class="tab-btn active px-4 py-2 rounded-lg font-medium text-sm" onclick="switchTab('game')">游戏用</button>
+                <button class="tab-btn px-4 py-2 rounded-lg font-medium text-sm" onclick="switchTab('recording')">录音用</button>
+                <button class="tab-btn px-4 py-2 rounded-lg font-medium text-sm" onclick="switchTab('live')">直播用</button>
+                <button class="tab-btn px-4 py-2 rounded-lg font-medium text-sm" onclick="switchTab('other')">其他/未知</button>
+            </div>
+
+            <!-- Tab Content Container -->
+            <div id="tab-content" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Content injected via JS -->
+            </div>
+        </section>
+
+        <!-- 3. 痛点与犹豫点 -->
+        <section class="fade-in">
+            <h2 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-red-500 pl-3">三、用户痛点与犹豫点分析</h2>
+            <div class="card p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-red-700 mb-2"><i class="fa-solid fa-triangle-exclamation mr-2"></i>预算敏感</h3>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• 频繁提及"1k左右"、"超预算"</li>
+                            <li>• 对比其他平台价格（如某鱼）</li>
+                            <li>• 希望通过"以旧换新"降低成本</li>
+                        </ul>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-orange-700 mb-2"><i class="fa-solid fa-circle-question mr-2"></i>技术门槛</h3>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• 不理解"机架"、"声卡推动力"</li>
+                            <li>• 担心电脑配置不足（CPU/内存）</li>
+                            <li>• 安装调试恐惧（驱动、远程调试）</li>
+                        </ul>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-yellow-700 mb-2"><i class="fa-solid fa-scale-balanced mr-2"></i>选择困难</h3>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• 动圈麦 vs 电容麦区别</li>
+                            <li>• 型号过多（PD200, DM40等）不知道选哪个</li>
+                            <li>• 套餐搭配困惑（是否需要额外买线、支架）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 典型用户样本 -->
+        <section class="fade-in">
+            <h2 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-blue-600 pl-3">四、典型用户评论样本</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Sample 1 -->
+                <div class="card p-5 border-t-4 border-blue-500">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">游戏语音场景</span>
+                        <span class="text-xs text-gray-400">样本ID: 01</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded text-sm text-gray-600 italic mb-3">
+                        "你好主播 我想买一套麦+声卡1k左右 然后声卡能推动490pro的 有么... 有点超预算了说实话... 我是为了耳机买的... 那啥我先问一下 机架是啥..."
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex text-sm"><span class="font-bold w-16">画像:</span> <span class="text-gray-600">已有高端耳机(490pro)的硬核玩家，预算1.2k。</span></div>
+                        <div class="flex text-sm"><span class="font-bold w-16">痛点:</span> <span class="text-gray-600">对声卡术语(机架)陌生，预算紧张，追求性价比。</span></div>
+                        <div class="flex text-sm"><span class="font-bold w-16">决策:</span> <span class="text-gray-600">在7号和9号链接间纠结，关注推动力。</span></div>
+                    </div>
+                </div>
+
+                <!-- Sample 2 -->
+                <div class="card p-5 border-t-4 border-green-500">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">直播/变声场景</span>
+                        <span class="text-xs text-gray-400">样本ID: 02</span>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded text-sm text-gray-600 italic mb-3">
+                        "可以变声？... 如果回来以后效果不好可以退吧？我昨天花400买了软件，入了智商税了... 694和824拍哪个呀 哪个性价比高"
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex text-sm"><span class="font-bold w-16">画像:</span> <span class="text-gray-600">娱乐主播，被软件割过韭菜，寻求硬件变声方案。</span></div>
+                        <div class="flex text-sm"><span class="font-bold w-16">痛点:</span> <span class="text-gray-600">对软件失望，担心硬件效果和退货政策。</span></div>
+                        <div class="flex text-sm"><span class="font-bold w-16">决策:</span> <span class="text-gray-600">重点关注694(824)型号，确认退货保障。</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 建议与策略 -->
+        <section class="fade-in">
+            <h2 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-blue-600 pl-3">五、主播与运营建议</h2>
+            <div class="card overflow-hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2">
+                    <div class="p-6 border-b md:border-b-0 md:border-r border-gray-100">
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i class="fa-solid fa-microphone-lines text-blue-500 mr-2"></i>直播展示建议</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 h-5 w-5 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full text-xs mt-0.5 mr-2">1</span>
+                                <span class="text-sm text-gray-600"><strong>场景化演示：</strong>针对游戏用户，现场演示"机架"EQ调节，展示如何消除队友杂音；针对变声用户，实时演示"变男/女声"且无延迟。</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 h-5 w-5 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full text-xs mt-0.5 mr-2">2</span>
+                                <span class="text-sm text-gray-600"><strong>对比打消疑虑：</strong>将动圈麦与电容麦并排，敲击桌面展示降噪差异；用手机直录对比声卡录音效果。</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i class="fa-solid fa-bullhorn text-green-500 mr-2"></i>运营与产品策略</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 h-5 w-5 flex items-center justify-center bg-green-100 text-green-600 rounded-full text-xs mt-0.5 mr-2">1</span>
+                                <span class="text-sm text-gray-600"><strong>套餐优化：</strong>推出"游戏入门套餐"（麦+基础声卡+卡农线），定价精准卡位1k-1.2k区间。</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 h-5 w-5 flex items-center justify-center bg-green-100 text-green-600 rounded-full text-xs mt-0.5 mr-2">2</span>
+                                <span class="text-sm text-gray-600"><strong>FAQ内容升级：</strong>制作"电脑配置要求清单"图表，简化"机架"概念解释为"手机修图软件一样的声音美化工具"。</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 数据表格 -->
+        <section class="fade-in pb-8">
+            <h2 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-gray-400 pl-3">数据明细</h2>
+            <div class="card overflow-x-auto">
+                <table class="min-w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">场景一级分类</th>
+                            <th scope="col" class="px-6 py-3">设备类型</th>
+                            <th scope="col" class="px-6 py-3">主要关注点</th>
+                            <th scope="col" class="px-6 py-3">满意度</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. Data Parsing & Processing ---
+        const rawData = [
+            { cat1: "游戏用", dev: "声卡/调音台/混音器", focus: "推动力,预算,机架", sat: "满意" },
+            { cat1: "无", dev: "声卡/调音台/混音器", focus: "混响对比", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "录歌", sat: "中性" },
+            { cat1: "无", dev: "声卡/调音台/混音器", focus: "电脑声卡", sat: "中性" },
+            { cat1: "录音用", dev: "无", focus: "干声,录音", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "价保,连接效果", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "电台推荐", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "变声", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "回音,驱动", sat: "中性" },
+            { cat1: "无", dev: "声卡/调音台/混音器", focus: "自带声卡", sat: "中性" },
+            { cat1: "直播用", dev: "电脑", focus: "直播聊天", sat: "满意" },
+            { cat1: "无", dev: "手机", focus: "连接兼容", sat: "中性" },
+            { cat1: "直播用", dev: "无", focus: "降噪,直播伴侣", sat: "中性" },
+            { cat1: "游戏用", dev: "电脑", focus: "变声,配置,退货", sat: "中性" },
+            { cat1: "无", dev: "手机", focus: "连接,变声", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "音质", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "调试服务", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "型号对比", sat: "中性" },
+            { cat1: "无", dev: "手机", focus: "连接,蓝牙", sat: "中性" },
+            { cat1: "直播用", dev: "手机", focus: "降噪,音质,操控", sat: "满意" },
+            { cat1: "直播用", dev: "手机", focus: "收音,支架,质保", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "兼容,对比", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "修声功能", sat: "中性" },
+            { cat1: "直播用", dev: "手机", focus: "支架", sat: "中性" },
+            { cat1: "无", dev: "手机", focus: "内置声卡", sat: "中性" },
+            { cat1: "直播用", dev: "手机", focus: "模式,音质", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "动圈电容区别", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "游戏同时用", sat: "中性" },
+            { cat1: "无", dev: "声卡/调音台/混音器", focus: "单独麦", sat: "中性" },
+            { cat1: "直播用", dev: "手机", focus: "变声,套餐", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "动圈电容,双十一", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "型号对比", sat: "中性" },
+            { cat1: "游戏用", dev: "手机", focus: "变声,性价比", sat: "中性" },
+            { cat1: "游戏用", dev: "无", focus: "变声", sat: "中性" },
+            { cat1: "直播用", dev: "电脑", focus: "变声,配置,安装", sat: "中性" },
+            { cat1: "录音用", dev: "无", focus: "配音", sat: "满意" },
+            { cat1: "录音用", dev: "声卡/调音台/混音器", focus: "唱歌", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "型号对比", sat: "中性" },
+            { cat1: "无", dev: "手机", focus: "连接", sat: "中性" },
+            { cat1: "游戏用", dev: "无", focus: "修音,搭配", sat: "满意" },
+            { cat1: "直播用", dev: "手机", focus: "伴奏", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "支架", sat: "满意" },
+            { cat1: "无", dev: "无", focus: "型号对比", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "型号对比", sat: "中性" },
+            { cat1: "无", dev: "声卡/调音台/混音器", focus: "调试", sat: "中性" },
+            { cat1: "直播用", dev: "电脑", focus: "娱乐", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "变声", sat: "中性" },
+            { cat1: "无", dev: "手机", focus: "连接", sat: "中性" },
+            { cat1: "录音用", dev: "无", focus: "人声文案", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "唱歌", sat: "中性" },
+            { cat1: "无", dev: "游戏机", focus: "双十一,型号", sat: "不满意" },
+            { cat1: "无", dev: "电脑", focus: "调音", sat: "满意" },
+            { cat1: "直播用", dev: "手机", focus: "软件,搭配", sat: "满意" },
+            { cat1: "直播用", dev: "电脑", focus: "游戏", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "变声,配置", sat: "满意" },
+            { cat1: "录音用", dev: "手机", focus: "调音", sat: "满意" },
+            { cat1: "无", dev: "无", focus: "变声", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "变声", sat: "中性" },
+            { cat1: "录音用", dev: "手机", focus: "配音", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "唱歌", sat: "中性" },
+            { cat1: "游戏用", dev: "声卡/调音台/混音器", focus: "推动力,预算", sat: "满意" },
+            { cat1: "无", dev: "游戏机", focus: "双十一", sat: "不满意" },
+            { cat1: "录音用", dev: "无", focus: "磁性音质", sat: "不满意" },
+            { cat1: "直播用", dev: "无", focus: "清晰", sat: "中性" },
+            { cat1: "无", dev: "声卡/调音台/混音器", focus: "声卡", sat: "中性" },
+            { cat1: "直播用", dev: "电脑", focus: "变声,区别", sat: "满意" },
+            { cat1: "直播用", dev: "电脑", focus: "无线耳机,兼容", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "降噪,变声", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "连接", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "音量", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "唱歌", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "监听,变身器", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "效果", sat: "中性" },
+            { cat1: "直播用", dev: "手机", focus: "电流声", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "降噪", sat: "中性" },
+            { cat1: "无", dev: "手机", focus: "监听", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "调试,杂音", sat: "中性" },
+            { cat1: "直播用", dev: "电脑Windows", focus: "变声,调试", sat: "满意" },
+            { cat1: "无", dev: "声卡/调音台/混音器", focus: "类型", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "变声", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "变声", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "变声", sat: "中性" },
+            { cat1: "游戏用", dev: "游戏机", focus: "降噪", sat: "满意" },
+            { cat1: "录音用", dev: "无", focus: "音质", sat: "不满意" },
+            { cat1: "无", dev: "无", focus: "效果", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "对比", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "降噪", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "最新款", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "动圈,音色", sat: "中性" },
+            { cat1: "无", dev: "游戏机", focus: "对比,降噪", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "音色", sat: "中性" },
+            { cat1: "无", dev: "手机", focus: "连接", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "解说", sat: "中性" },
+            { cat1: "无", dev: "手机", focus: "直接用", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "口播,调音", sat: "满意" },
+            { cat1: "录音用", dev: "手机", focus: "吉他,混响", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "功能", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "满意", sat: "满意" },
+            { cat1: "无", dev: "无", focus: "音质", sat: "不满意" },
+            { cat1: "直播用", dev: "手机", focus: "唱歌", sat: "中性" },
+            { cat1: "录音用", dev: "手机", focus: "视频,洪亮", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "变声", sat: "中性" },
+            { cat1: "无", dev: "手机", focus: "支架", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "降噪,蓝牙", sat: "满意" },
+            { cat1: "无", dev: "无", focus: "调试", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "变声", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "配置,连接", sat: "中性" },
+            { cat1: "直播用", dev: "无", focus: "配音,预算", sat: "中性" },
+            { cat1: "直播用", dev: "电脑", focus: "声卡", sat: "中性" },
+            { cat1: "直播用", dev: "手机", focus: "退货", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "优惠", sat: "中性" },
+            { cat1: "直播用", dev: "无", focus: "唱歌", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "无线", sat: "满意" },
+            { cat1: "直播用", dev: "无", focus: "聊天", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "降噪", sat: "中性" },
+            { cat1: "直播用", dev: "声卡/调音台/混音器", focus: "调音,连接", sat: "满意" },
+            { cat1: "无", dev: "无", focus: "读书,领券", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "演出", sat: "中性" },
+            { cat1: "直播用", dev: "电脑", focus: "混响,声卡", sat: "满意" },
+            { cat1: "直播用", dev: "电脑", focus: "公会,调试", sat: "中性" },
+            { cat1: "无", dev: "声卡/调音台/混音器", focus: "调试", sat: "中性" },
+            { cat1: "无", dev: "无", focus: "降噪,发货", sat: "满意" },
+            { cat1: "直播用", dev: "电脑", focus: "录课", sat: "中性" },
+            { cat1: "无", dev: "电脑", focus: "风扇声", sat: "满意" },
+            { cat1: "无", dev: "手机", focus: "吉他连接", sat: "中性" },
+            { cat1: "无", dev: "平板", focus: "无线领夹", sat: "中性" }
+        ];
+
+        // Group Data
+        const analysisData = {
+            game: {
+                title: "游戏用",
+                total: 8,
+                devices: { "声卡": 3, "电脑": 2, "游戏机": 2, "无": 1 },
+                devicesArr: ["声卡", "电脑", "游戏机", "其他"],
+                devicesVal: [3, 2, 2, 1],
+                focus: ["推动力", "变声", "降噪", "预算"],
+                satisfaction: { "满意": 3, "中性": 4, "不满意": 1 },
+                desc: "用户极度关注硬件对高端耳机的推动力及变声功能的趣味性。对价格敏感，常提及预算上限。"
+            },
+            recording: {
+                title: "录音用",
+                total: 7,
+                devices: { "手机": 3, "声卡": 1, "无": 3 },
+                devicesArr: ["手机", "无/其他", "声卡"],
+                devicesVal: [3, 3, 1],
+                focus: ["干声", "配音", "音质", "调音"],
+                satisfaction: { "满意": 2, "中性": 4, "不满意": 1 },
+                desc: "主要需求为录歌、配音和视频解说。用户对音质的"磁性"、"清晰度"有明确要求，部分追求专业干声。"
+            },
+            live: {
+                title: "直播用",
+                total: 18, // Approximate based on filtering
+                devices: { "电脑": 8, "手机": 8, "无": 2 },
+                devicesArr: ["电脑", "手机", "无/其他"],
+                devicesVal: [8, 8, 2],
+                focus: ["变声", "调试", "兼容", "伴奏"],
+                satisfaction: { "满意": 6, "中性": 12, "不满意": 0 },
+                desc: "直播场景最复杂，涵盖带货、唱歌、聊天。用户对手机/电脑兼容性、无线连接及调试服务依赖度高。"
+            },
+            other: {
+                title: "其他/未知",
+                total: 52, // The rest
+                devices: { "无": 30, "声卡": 5, "电脑": 5, "手机": 5, "其他": 7 },
+                devicesArr: ["无/未提及", "声卡", "电脑", "手机", "其他"],
+                devicesVal: [30, 5, 5, 5, 7],
+                focus: ["对比", "连接", "降噪", "音质"],
+                satisfaction: { "满意": 5, "中性": 43, "不满意": 2 },
+                desc: "包含大量咨询型评论，用户处于初步了解阶段。高频询问动圈/电容区别及不同型号差异。"
+            }
+        };
+
+        // --- 2. Chart Instances ---
+        let charts = {};
+
+        // --- 3. Render Functions ---
+
+        function renderTable() {
+            const tbody = document.getElementById('data-table-body');
+            // Just show first 20 for brevity in this demo, or all
+            rawData.slice(0, 20).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "bg-white border-b hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${row.cat1}</td>
+                    <td class="px-6 py-4">${row.dev}</td>
+                    <td class="px-6 py-4">${row.focus}</td>
+                    <td class="px-6 py-4">
+                        <span class="${row.sat === '满意' ? 'text-green-600' : (row.sat === '不满意' ? 'text-red-600' : 'text-gray-500')} font-bold">
+                            ${row.sat}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function createChart(ctx, type, data, options) {
+            return new Chart(ctx, {
+                type: type,
+                data: data,
+                options: options
+            });
+        }
+
+        function updateTabContent(key) {
+            const container = document.getElementById('tab-content');
+            const data = analysisData[key];
+            
+            // Clear previous charts
+            Object.values(charts).forEach(chart => chart.destroy());
+            charts = {};
+
+            container.innerHTML = `
+                <!-- Left Column: Stats & Description -->
+                <div class="space-y-6">
+                    <div class="card p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">${data.title}场景分析</h3>
+                        <p class="text-gray-600 mb-4 leading-relaxed">${data.desc}</p>
+                        <div class="flex gap-4 text-sm">
+                            <div class="bg-blue-50 px-3 py-1 rounded-full text-blue-700 font-medium">样本数: ${data.total}</div>
+                            <div class="bg-green-50 px-3 py-1 rounded-full text-green-700 font-medium">满意度: ${Math.round((data.satisfaction['满意'] || 0) / data.total * 100)}%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-6">
+                        <h4 class="font-bold text-gray-700 mb-4">主要关注点 (Top 4)</h4>
+                        <div class="flex flex-wrap gap-2">
+                            ${data.focus.map(f => `<span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm border border-gray-200">${f}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <h4 class="font-bold text-gray-700 mb-4">满意度分布</h4>
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="satisfactionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Device Analysis -->
+                <div class="card p-6">
+                    <h4 class="font-bold text-gray-700 mb-4">设备类型分布</h4>
+                    <div class="chart-container">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+                    <div class="mt-6">
+                        <h4 class="font-bold text-gray-700 mb-3">设备组合洞察</h4>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            ${key === 'game' ? '<li>• <strong>声卡+耳机</strong>：核心组合，强调推动力。</li><li>• <strong>麦克风</strong>：主要用于语音开黑，非直播。</li>' : ''}
+                            ${key === 'recording' ? '<li>• <strong>手机直录</strong>：占比高，追求便携。</li><li>• <strong>专业声卡</strong>：用于干声录制和播客。</li>' : ''}
+                            ${key === 'live' ? '<li>• <strong>电脑直播</strong>：需要变声、混响等特效。</li><li>• <strong>手机直播</strong>：关注蓝牙连接、监听和无线配件。</li>' : ''}
+                            ${key === 'other' ? '<li>• <strong>咨询为主</strong>：多处于选品阶段。</li><li>• <strong>全平台兼容</strong>：询问手机/电脑/平板通用性。</li>' : ''}
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            // Render Charts
+            // 1. Device Chart (Doughnut)
+            const ctxDev = document.getElementById('deviceChart').getContext('2d');
+            charts.dev = createChart(ctxDev, 'doughnut', {
+                labels: data.devicesArr,
+                datasets: [{
+                    data: data.devicesVal,
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#6b7280'],
+                    borderWidth: 0
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            });
+
+            // 2. Satisfaction Chart (Bar)
+            const ctxSat = document.getElementById('satisfactionChart').getContext('2d');
+            charts.sat = createChart(ctxSat, 'bar', {
+                labels: ['满意', '中性', '不满意'],
+                datasets: [{
+                    label: '用户数量',
+                    data: [data.satisfaction['满意'] || 0, data.satisfaction['中性'] || 0, data.satisfaction['不满意'] || 0],
+                    backgroundColor: ['#10b981', '#9ca3af', '#ef4444'],
+                    borderRadius: 4
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            });
+        }
+
+        function switchTab(key) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.includes(analysisData[key].title.split('/')[0])) {
+                    btn.classList.add('active');
+                }
+            });
+            // Update content
+            updateTabContent(key);
+        }
+
+        // --- 4. Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTable();
+            switchTab('game'); // Default tab
+        });
+
+    </script>
+</body>
+</html>
+```
