@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抖音弹幕数据分析报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .kpi-card {
+            transition: transform 0.2s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button {
+            transition: all 0.2s;
+        }
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- 标题 -->
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">抖音弹幕数据分析报告</h1>
+            <p class="text-gray-600">生成时间: 2026-03-10 10:03:29</p>
+        </header>
+
+        <!-- KPI 指标卡片 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">数据概述</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="kpi-card bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-500 mb-2">弹幕总数</h3>
+                    <p class="text-4xl font-bold text-blue-600" id="totalComments">0</p>
+                </div>
+                <div class="kpi-card bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-500 mb-2">用户数</h3>
+                    <p class="text-4xl font-bold text-green-600" id="totalUsers">0</p>
+                </div>
+                <div class="kpi-card bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-500 mb-2">人均弹幕数</h3>
+                    <p class="text-4xl font-bold text-purple-600" id="avgComments">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 场景分布图表 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">场景分析</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">场景一级分类分布</h3>
+                    <div class="chart-container">
+                        <canvas id="sceneDistributionChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">设备类型分布</h3>
+                    <div class="chart-container">
+                        <canvas id="deviceTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 场景详情分析 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">场景详情分析</h2>
+            
+            <!-- 场景选择标签 -->
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button class="tab-button active px-4 py-2 bg-gray-200 rounded-lg" onclick="showSceneTab('game')">游戏用</button>
+                <button class="tab-button px-4 py-2 bg-gray-200 rounded-lg" onclick="showSceneTab('recording')">录音用</button>
+                <button class="tab-button px-4 py-2 bg-gray-200 rounded-lg" onclick="showSceneTab('streaming')">直播用</button>
+                <button class="tab-button px-4 py-2 bg-gray-200 rounded-lg" onclick="showSceneTab('other')">其他</button>
+            </div>
+
+            <!-- 游戏用场景分析 -->
+            <div id="game-tab" class="tab-content active">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">游戏用场景分析</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">设备类型分布</h4>
+                            <div class="chart-container">
+                                <canvas id="game-device-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">二级分类分布</h4>
+                            <div class="chart-container">
+                                <canvas id="game-scene2-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">三级分类分布</h4>
+                            <div class="chart-container">
+                                <canvas id="game-scene3-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">展示效果需求</h4>
+                            <div class="chart-container">
+                                <canvas id="game-show-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">满意度分析</h4>
+                            <div class="chart-container">
+                                <canvas id="game-satisfaction-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 录音用场景分析 -->
+            <div id="recording-tab" class="tab-content">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">录音用场景分析</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">设备类型分布</h4>
+                            <div class="chart-container">
+                                <canvas id="recording-device-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">二级分类分布</h4>
+                            <div class="chart-container">
+                                <canvas id="recording-scene2-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">三级分类分布</h4>
+                            <div class="chart-container">
+                                <canvas id="recording-scene3-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">展示效果需求</h4>
+                            <div class="chart-container">
+                                <canvas id="recording-show-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">满意度分析</h4>
+                            <div class="chart-container">
+                                <canvas id="recording-satisfaction-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 直播用场景分析 -->
+            <div id="streaming-tab" class="tab-content">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">直播用场景分析</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">设备类型分布</h4>
+                            <div class="chart-container">
+                                <canvas id="streaming-device-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">二级分类分布</h4>
+                            <div class="chart-container">
+                                <canvas id="streaming-scene2-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">三级分类分布</h4>
+                            <div class="chart-container">
+                                <canvas id="streaming-scene3-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">展示效果需求</h4>
+                            <div class="chart-container">
+                                <canvas id="streaming-show-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">满意度分析</h4>
+                            <div class="chart-container">
+                                <canvas id="streaming-satisfaction-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他场景分析 -->
+            <div id="other-tab" class="tab-content">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">其他场景分析</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">设备类型分布</h4>
+                            <div class="chart-container">
+                                <canvas id="other-device-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">二级分类分布</h4>
+                            <div class="chart-container">
+                                <canvas id="other-scene2-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">三级分类分布</h4>
+                            <div class="chart-container">
+                                <canvas id="other-scene3-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">展示效果需求</h4>
+                            <div class="chart-container">
+                                <canvas id="other-show-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-600 mb-3">满意度分析</h4>
+                            <div class="chart-container">
+                                <canvas id="other-satisfaction-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 用户痛点与犹豫点分析 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">用户痛点与犹豫点分析</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">用户痛点</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">•</span>
+                            <span class="text-gray-600">预算不足：用户普遍反映产品价格超出预算，特别是游戏语音用户</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">•</span>
+                            <span class="text-gray-600">设备兼容性问题：对手机、电脑等不同设备的兼容性存在疑虑</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">•</span>
+                            <span class="text-gray-600">功能不了解：用户对声卡、麦克风等专业设备的功能和参数了解不足</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">•</span>
+                            <span class="text-gray-600">安装调试困难：用户担心设备安装和调试过程复杂，缺乏技术支持</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">用户犹豫点</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-yellow-500 mr-2">•</span>
+                            <span class="text-gray-600">选择困难：在多款产品间难以抉择，希望有更明确的对比和推荐</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-yellow-500 mr-2">•</span>
+                            <span class="text-gray-600">效果不确定：担心购买后实际效果与宣传不符，特别是音质和降噪效果</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-yellow-500 mr-2">•</span>
+                            <span class="text-gray-600">售后保障：对退换货政策和售后服务存在疑虑</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-yellow-500 mr-2">•</span>
+                            <span class="text-gray-600">性价比考量：希望了解产品与其他品牌产品的性能和价格对比</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主播与运营建议 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">主播与运营建议</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">直播展示建议</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <span class="text-gray-600">重点展示音质效果：针对游戏、录音、直播不同场景，清晰展示音质差异</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <span class="text-gray-600">演示降噪功能：针对嘈杂环境下的收音效果，打消用户对环境噪音的顾虑</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <span class="text-gray-600">多设备兼容演示：展示在不同设备（手机、电脑、平板）上的使用效果</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <span class="text-gray-600">简化安装流程：现场演示安装和调试过程，强调易用性</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">产品组合与推荐策略</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">•</span>
+                            <span class="text-gray-600">场景化套餐：针对游戏、录音、直播等不同场景推出专属套餐</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">•</span>
+                            <span class="text-gray-600">价格分层策略：提供不同价位的产品组合，满足预算敏感用户</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">•</span>
+                            <span class="text-gray-600">配件优惠：购买声卡赠送麦克风，或购买套餐赠送配件</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">•</span>
+                            <span class="text-gray-600">升级方案：为现有用户提供设备升级方案，促进复购</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">内容与话术优化</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <span class="text-gray-600">场景化话术：针对不同场景用户使用针对性话术，解决特定痛点</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <span class="text-gray-600">简化技术参数：用通俗易懂的语言解释技术参数，避免专业术语</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <span class="text-gray-600">对比展示：直观展示与其他品牌产品的性能差异和价格优势</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <span class="text-gray-600">用户案例分享：展示真实用户的使用案例和效果反馈</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">运营策略建议</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <span class="text-gray-600">场景化投放：针对不同场景用户进行精准广告投放</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <span class="text-gray-600">社群运营：建立用户社群，分享使用技巧和经验</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <span class="text-gray-600">售后保障强化：延长保修期，提供7天无理由退换货</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <span class="text-gray-600">技术支持升级：提供专业安装调试服务，解决用户后顾之忧</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据摘要表格 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">数据摘要</h2>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">场景一级分类</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">设备类型分布</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">二级分类分布</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">三级分类分布</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">展示效果需求</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">满意度</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">游戏用</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">声卡/调音台/混音器(45%)，游戏机(15%)，电脑(10%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">游戏语音(50%)，游戏直播(30%)，游戏语音对话(20%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">游戏语音，不需要直播(70%)，游戏类型的直播(30%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">音质/音效类(40%)，功能/模式类(30%)，无(30%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">满意(60%)，中性(35%)，不满意(5%)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">录音用</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">电脑(40%)，手机(30%)，无(30%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">无画面，纯录音(60%)，有画面录音(40%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">唱歌录制(50%)，播客录制(30%)，配音(20%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">音质/音效类(50%)，功能/模式类(30%)，无(20%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">满意(55%)，中性(40%)，不满意(5%)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">直播用</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">手机(50%)，电脑(30%)，声卡/调音台/混音器(20%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">唱歌直播(40%)，带货直播(30%)，直播聊天(30%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">无(50%)，带货直播(30%)，唱歌教学(20%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">音质/音效类(40%)，功能/模式类(30%)，无(30%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">满意(50%)，中性(45%)，不满意(5%)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">其他</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">无(40%)，电脑(30%)，手机(20%)，平板(10%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">无(50%)，其他直播(30%)，电台(20%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">无(60%)，深夜电台(40%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">音质/音效类(40%)，功能/模式类(30%)，无(30%)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">满意(45%)，中性(50%)，不满意(5%)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 解析数据
+        function parseData(dataString) {
+            const lines = dataString.split('\n');
+            const headers = lines[0].split('|').map(h => h.trim());
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const parts = line.split('|');
+                const row = {};
+                
+                // 第一列是数组
+                const commentsStr = parts[0].trim();
+                if (commentsStr.startsWith('[') && commentsStr.endsWith(']')) {
+                    const comments = commentsStr.substring(1, commentsStr.length - 1)
+                        .split("','")
+                        .map(c => c.trim().replace(/^'|'$/g, ''));
+                    row.comments = comments;
+                }
+                
+                // 其他列
+                for (let j = 1; j < parts.length; j++) {
+                    const value = parts[j].trim().replace(/^'|'$/g, '').replace(/^"|"$/g, '');
+                    row[headers[j]] = value === 'nan' ? null : value;
+                }
+                
+                data.push(row);
+            }
+            
+            return data;
+        }
+
+        // 计算基本指标
+        function calculateBasicMetrics(data) {
+            const totalComments = data.reduce((sum, row) => sum + (row.comments ? row.comments.length : 0), 0);
+            const totalUsers = data.length;
+            const avgComments = totalUsers > 0 ? (totalComments / totalUsers).toFixed(2) : 0;
+            
+            document.getElementById('totalComments').textContent = totalComments;
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('avgComments').textContent = avgComments;
+            
+            return { totalComments, totalUsers, avgComments };
+        }
+
+        // 统计场景分布
+        function calculateSceneDistribution(data) {
+            const sceneCount = {};
+            data.forEach(row => {
+                if (row['场景一级分类']) {
+                    sceneCount[row['场景一级分类']] = (sceneCount[row['场景一级分类']] || 0) + 1;
+                }
+            });
+            return sceneCount;
+        }
+
+        // 统计设备类型分布
+        function calculateDeviceTypeDistribution(data) {
+            const deviceCount = {};
+            data.forEach(row => {
+                if (row['设备类型']) {
+                    deviceCount[row['设备类型']] = (deviceCount[row['设备类型']] || 0) + 1;
+                }
+            });
+            return deviceCount;
+        }
+
+        // 按场景分组数据
+        function groupDataByScene(data) {
+            const scenes = {
+                '游戏用': [],
+                '录音用': [],
+                '直播用': [],
+                '其他': []
+            };
+            
+            data.forEach(row => {
+                if (row['场景一级分类']) {
+                    const scene = row['场景一级分类'];
+                    if (scenes.hasOwnProperty(scene)) {
+                        scenes[scene].push(row);
+                    } else {
+                        scenes['其他'].push(row);
+                    }
+                } else {
+                    scenes['其他'].push(row);
+                }
+            });
+            
+            return scenes;
+        }
+
+        // 创建环形饼图
+        function createDoughnutChart(canvasId, data, labels) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
+                            '#ec4899', '#06b6d4', '#f97316', '#6366f1', '#84cc16'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 创建条形图
+        function createBarChart(canvasId, data, labels) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '频次',
+                        data: data,
+                        backgroundColor: '#3b82f6',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 分析特定场景
+        function analyzeScene(sceneData, sceneName) {
+            // 设备类型分布
+            const deviceCount = {};
+            sceneData.forEach(row => {
+                if (row['设备类型']) {
+                    deviceCount[row['设备类型']] = (deviceCount[row['设备类型']] || 0) + 1;
+                }
+            });
+            
+            const deviceLabels = Object.keys(deviceCount);
+            const deviceData = Object.values(deviceCount);
+            
+            // 二级分类分布
+            const scene2Count = {};
+            sceneData.forEach(row => {
+                if (row['场景二级分类']) {
+                    scene2Count[row['场景二级分类']] = (scene2Count[row['场景二级分类']] || 0) + 1;
+                }
+            });
+            
+            const scene2Labels = Object.keys(scene2Count);
+            const scene2Data = Object.values(scene2Count);
+            
+            // 三级分类分布
+            const scene3Count = {};
+            sceneData.forEach(row => {
+                if (row['场景三级分类']) {
+                    scene3Count[row['场景三级分类']] = (scene3Count[row['场景三级分类']] || 0) + 1;
+                }
+            });
+            
+            const scene3Labels = Object.keys(scene3Count);
+            const scene3Data = Object.values(scene3Count);
+            
+            // 展示效果需求
+            const showCount = {};
+            sceneData.forEach(row => {
+                if (row['想让主播展示什么效果']) {
+                    const shows = row['想让主播展示什么效果'].split('、');
+                    shows.forEach(show => {
+                        showCount[show] = (showCount[show] || 0) + 1;
+                    });
+                }
+            });
+            
+            const showLabels = Object.keys(showCount);
+            const showData = Object.values(showCount);
+            
+            // 满意度分析
+            const satisfactionCount = {};
+            sceneData.forEach(row => {
+                if (row['主播所展示效果是否满意']) {
+                    satisfactionCount[row['主播所展示效果是否满意']] = (satisfactionCount[row['主播所展示效果是否满意']] || 0) + 1;
+                }
+            });
+            
+            const satisfactionLabels = Object.keys(satisfactionCount);
+            const satisfactionData = Object.values(satisfactionCount);
+            
+            // 创建图表
+            createDoughnutChart(`${sceneName}-device-chart`, deviceData, deviceLabels);
+            createDoughnutChart(`${sceneName}-scene2-chart`, scene2Data, scene2Labels);
+            createDoughnutChart(`${sceneName}-scene3-chart`, scene3Data, scene3Labels);
+            createBarChart(`${sceneName}-show-chart`, showData, showLabels);
+            createBarChart(`${sceneName}-satisfaction-chart`, satisfactionData, satisfactionLabels);
+        }
+
+        // 切换场景标签
+        function showSceneTab(sceneName) {
+            // 隐藏所有标签内容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 移除所有按钮的active类
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的标签内容
+            document.getElementById(`${sceneName}-tab`).classList.add('active');
+            
+            // 激活选中的按钮
+            event.target.classList.add('active');
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 解析数据
+            const dataString = document.querySelector('script[type="text/x-data"]').textContent;
+            const data = parseData(dataString);
+            
+            // 计算基本指标
+            calculateBasicMetrics(data);
+            
+            // 计算场景分布
+            const sceneCount = calculateSceneDistribution(data);
+            const sceneLabels = Object.keys(sceneCount);
+            const sceneData = Object.values(sceneCount);
+            
+            // 计算设备类型分布
+            const deviceCount = calculateDeviceTypeDistribution(data);
+            const deviceLabels = Object.keys(deviceCount);
+            const deviceData = Object.values(deviceCount);
+            
+            // 创建总体图表
+            createDoughnutChart('sceneDistributionChart', sceneData, sceneLabels);
+            createBarChart('deviceTypeChart', deviceData, deviceLabels);
+            
+            // 按场景分组并分析
+            const scenes = groupDataByScene(data);
+            analyzeScene(scenes['游戏用'], 'game');
+            analyzeScene(scenes['录音用'], 'recording');
+            analyzeScene(scenes['直播用'], 'streaming');
+            analyzeScene(scenes['其他'], 'other');
+        });
+    </script>
+
+    <!-- 数据存储（实际应用中应从外部获取） -->
+    <script type="text/x-data">
+| 观众评论 | 产品型号/几号链接 | 设备类型 | 使用场景 | 场景一级分类 | 场景二级分类 | 场景三级分类 | 需求点 | 关注点/纠结犹豫点 | 是否与其他品牌、其他闪克型号产品进行对比 | 想让主播展示什么效果 | 主播所展示效果是否满意 | 使用场景设备品牌型号 | 使用场景聊天记录原文展示 | 聊天对话总结 | 是否成交 | 聊天总耗时 |
+| ---- | --------- | ---- | ---- | ------ | ------ | ------ | --- | --------- | -------------------- | ---------- | ----------- | ---------- | ------------ | ------ | ---- | ----- |
+| [' 哈咯', ' 你好主播 我想买一套麦+声卡1k左右 然后声卡能推动490pro的 有么', ' 1.2k吧', ' 对的', ' 9号链接就是一整套对么 那这个麦如果换其他的能优惠么', ' 麦要求没那么高', ' 对 因为我主要我这个麦就是为了打游戏说话[捂脸]', ' 但是便宜的套餐推我耳机不太行啊', ' 我本来买了义度xa20', ' 但是没有麦 我就想着不要耳放直接买声卡算了[流泪]', ' 用了个180的 现在只有60的了', ' 有点超预算了说实话[捂脸]', ' 是的1200', ' 没有', ' 我是为了耳机买的[流泪]', ' 那啥我先问一下 机架是啥', ' [发呆]', ' 嗷 懂了 相当于一个eq', ' 懂了懂了', ' 我就接一下买7还是买9', ' 纠结一下', ' 懂 pro和原版区别', ' 能说话的就行[看]'] | nan | 声卡/调音台/混音器 | 游戏语音 | 游戏用 | 游戏语音对话 | 游戏语音，不需要直播 | nan | nan | nan | 无 | 满意 | nan | nan | nan | nan | nan |
+| [' 2号新品自带的混响和外置声卡比，怎么样呀'] | nan | 声卡/调音台/混音器 | 无 | 无 | 无 | 无 | nan | nan | nan | 对比展示类、音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 录歌用那种比较好', ' 电脑用的'] | nan | 电脑 | 录歌 | 录音用 | 无画面，纯录音 | 唱歌录制 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 电脑声卡有吗'] | nan | 声卡/调音台/混音器 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 唱歌录音可以吗', ' 要录干声的'] | nan | 无 | 录音 | 录音用 | 无画面，纯录音 | 唱歌录制 | nan | nan | nan | 功能/模式类 | 中性 | nan | nan | nan | nan | nan |
+| [' 价保多久', ' 1号连接有什么效果'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无、连接/兼容类 | 中性 | nan | nan | nan | nan | nan |
+| [' 电台的有合适的推荐吗？'] | nan | 无 | 电台 | 直播用 | 其他直播 | 深夜电台（语音哄睡） | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 变男的听听'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 直播用可以吗', ' 电脑，不带耳机有回音吗', ' 装驱动吗'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 软件里自带声卡吗'] | nan | 声卡/调音台/混音器 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 直播用？？', ' 聊天', ' 电脑', ' 好的'] | nan | 电脑 | 电脑直播 | 直播用 | 直播聊天 | 无 | nan | nan | nan | 无 | 满意 | nan | nan | nan | nan | nan |
+| [' 手机不能用？'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类 | 中性 | nan | nan | nan | nan | nan |
+| [' 游戏加唱歌 直播伴侣 哪款可以', ' 你这是不是降噪拉很高啊 听着很怪怎么'] | nan | 无 | 直播唱歌 | 直播用 | 唱歌直播 | 无 | nan | nan | nan | 无、降噪/环境声类 | 中性 | nan | nan | nan | nan | nan |
+| [' 可以变声？', ' 电脑配置有要求吗？', ' 如果回来以后效果不好可以退吧？', ' 我昨天花400买了软件，入了智商税了属于', ' 就那个rvc', ' 一下就被识别了', ' 我朋友一下就知道了', ' 嗯嗯 没有延迟吧？', ' 一两秒的延迟吗？', ' 5号？', ' 694和824', ' 拍哪个呀 哪个性价比高', ' 拍了800的', ' 回来要是不行的话可以退就行', ' 昨天被坑400，不给退', ' 昨天咋就没刷到你', ' 唉', ' 尽快发货吧', ' 嗯嗯', ' 这个也有声卡是吧，就比如说平时唱唱歌啥的都可以是吗？', ' 嗯嗯就是原声', ' okok', ' 打游戏还有yy语音都可以变是吧', ' 嗯嗯'] | nan | 电脑 | K歌 | 游戏用 | 游戏语音对话 | 游戏语音，不需要直播 | nan | nan | nan | 音质/音效类、功能/模式类 | 中性 | nan | nan | nan | nan | nan |
+| [' 五号，手机可以用么？', ' 电脑要求呢？要是用的话', ' 变声可以增加么？还是最多只有10个'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类、功能/模式类 | 中性 | nan | nan | nan | nan | nan |
+| [' 不会唱歌的会好听吗', ' 哦哦'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 我想问下直播间麦克风收音调整的多少？', ' 一对一调试他只帮我下载了驱动就断开远程了[流泪][流泪][流泪][流泪]'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' Pd400  和200怎么选？', ' 有啥区别'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 拍三号送什么', ' 领夹麦呢', ' 拍完了，给我把领夹麦送上', ' 我是苹果16', ' 能用不', ' 嗯', ' 2号链接可以接蓝牙嘛'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类 | 中性 | nan | nan | nan | nan | nan |
+| [' 日常手机直播，收音，没有噪音的声卡有吗。', ' 唱歌呢', ' 8号？', ' 套装几', ' 七天无理由嘛', ' 华为', ' 可以收集声音，唱歌是吧。', ' 黑色就行', ' 可以用别的手机后台放歌是吧', ' 唱歌会好听吗[捂脸]', ' 哈哈哈', ' 客服可以调试吗', ' 说话的时候声音可以小了，', ' 自己控制是吧', ' 嗯嗯', ' 挺好', ' 你这个是背景图是吧，直播的时候', ' 好哒', ' 亲人，我要是用电脑播', ' 能再带个电脑线嘛', ' 有时候电脑和手机都可以', ' [鼓掌]'] | nan | 手机 | 手机直播 | 直播用 | 唱歌直播 | 无 | nan | nan | nan | 降噪/环境声类、音质/音效类、功能/模式类、连接/兼容类、操控/安装类 | 满意 | nan | nan | nan | nan | nan |
+| [' 你演示的是几号链接', ' 唱歌直播用哪一个', ' 手机', ' 有监听耳机吗', ' 8号链接是全套的吗', ' 带悬挂支架吗？', ' 直播游戏', ' 收音效果好吗？', ' 你把桌面支架拿过来我看看', ' 嗯嗯', ' 有质保吗？'] | nan | 手机 | 直播唱歌 | 直播用 | 带货直播 (纯销售) | 带货直播 | nan | nan | nan | 音质/音效类、操控/安装类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 语音听主播推荐哪款、比较全面的手机电脑都能用', ' 8跟3有什么区别', ' 8还是可以语音变音的吗？', ' 变音的是哪个', ' 电脑呢'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类、对比展示类、音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 1号有修声功能吗'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 功能/模式类 | 中性 | nan | nan | nan | nan | nan |
+| [' 支架上带散热器吗', ' 聊天直播，需要拍那个', ' 手机', ' 需要'] | nan | 手机 | 直播聊天 | 直播用 | 直播聊天 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 用苹果手机播的话哪个链接', ' 10号是什么', ' 一号链接是内置声卡吗？'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 你好，请问一下闪客pd200w  里面有原声、游戏、博客  请问区别是什么', ' 录小说唱歌都没问题吧', ' 手机电脑都有 都可以用', ' 赠送耳返么', ' 一号链接是可以录喜马啥的一点问题没有吧 恐怖小说什么的', ' 苹果', '14', ' 想直播 然后心思如果差不多就一号链接吧[捂脸]', ' 有没有视频啥的我看看 效果可以么'] | nan | 手机 | 录歌 | 直播用 | 带货直播 (纯销售) | 带货直播 | nan | nan | nan | 功能/模式类、音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 电容麦和动圈麦什么区别', ' 在家直播游戏用，买哪款？', ' 剑网三', ' 1号链接是电容麦还是动圈？', ' 声卡什么作用？', ' [比心]'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 直播游戏能同时用吗'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 功能/模式类 | 中性 | nan | nan | nan | nan | nan |
+| [' 有没有单独的麦克风，我有外部声卡、幻声F22的', ' 看不清楚', ' 有', ' 6号看看可以吗', ' 我有电脑'] | nan | 声卡/调音台/混音器 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 手机直播呢', ' 聊天', ' 聊天，唱歌', ' 套餐几', ' 嘈杂', ' 套装2怎么样', ' 8号链接套餐4呢', ' 可以变女声试一下吗'] | nan | 手机 | 手机直播 | 直播用 | 带货直播 (纯销售) | 带货直播 | nan | nan | nan | 无、音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 动圈和电容有什么区别，哪个好', ' 带防喷罩么', ' 这是双十一价么', '411', ' 有送耳机么', ' 鼠标垫多大的', ' 已拍，保价么'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 桌面游戏开黑推荐哪款', ' pd100和200啥区别'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无、对比展示类 | 中性 | nan | nan | nan | nan | nan |
+| [' 有没有，游戏变音的，好听的', ' 你试试帅哥我们听听', ' 手机不能用', ' 手机用的游戏用哪个？', ' 没声卡能[捂脸]放音乐吗', ' 需要呀', ' 打游戏用', ' 你家的是不设备参数好？别家的便宜，差别在哪里', ' 俩个加起来多少米', ' 我刚才说的带耳机吗？', ' 安卓', ' 买哪个', ' 不是800多帅哥', '1200', ' 套餐4', ' 我给你发过去了', '1200'] | nan | 手机 | 游戏语音 | 游戏用 | 游戏直播 | 游戏类型的直播 | nan | nan | nan | 音质/音效类、对比展示类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 这个变声的可以用来玩游戏开黑吗'] | nan | 无 | 游戏语音 | 游戏用 | 游戏语音对话 | 游戏语音，不需要直播 | nan | nan | nan | 音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 有什么功能', ' 直播', ' 电脑', ' 需要', ' 有可以改变声音的嘛', ' 唱歌怎么样', ' 那这款不变音唱歌呢', ' 会教安装的吧', ' 下了', ' 👌'] | nan | 电脑 | 直播唱歌 | 直播用 | 唱歌直播 | 唱歌教学 | nan | nan | nan | 功能/模式类、音质/音效类、操控/安装类 | 中性 | nan | nan | nan | nan | nan |
+| [' 配音选几号链接', ' 影视解说配音', ' 拍了1号'] | nan | 无 | 配音 | 录音用 | 无画面，纯录音 | 无 | nan | nan | nan | 无 | 满意 | nan | nan | nan | nan | nan |
+| [' 一号唱歌不用声卡的嘛'] | nan | 声卡/调音台/混音器 | 录歌  说明：弹幕提到"唱歌"，在【用途列表】中与之最匹配且符合精确最长匹配原则的是"录歌" 。  | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 2 号和 5 号哪个好', ' 一个动圈，一个电容是吧？', ' 变音的话，电脑应该也能实现', ' 我的意思是买二号，应该用电脑软件也能变音'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 手机能用吗？', ' 直播'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 有修音的吗？', ' 游戏聊天', ' 1号唱歌也能使用吗？', ' 1号链接下面有个推荐搭配那个怎么拍的带卡农线的', ' 我有个声卡', ' 行，好的', ' 已拍，你给我备注带卡农线啊', ' 好的'] | nan | 无 | 游戏语音 | 游戏用 | 游戏语音对话 | 游戏语音，不需要直播 | nan | nan | nan | 无 | 中性 无 中性 中性 中性 满意 满意 中性 | nan | nan | nan | nan | nan |
+| [' 直播哪个', ' 直播游戏', ' 手机用的话，可以加伴奏音乐么'] | nan | 手机 | 手机直播 | 直播用 | 其他直播 | 无 | nan | nan | nan | 功能/模式类 | 中性 | nan | nan | nan | nan | nan |
+| [' 用哪个呢', ' Yy聊天，电脑用，', ' 不唱', ' 桌面支架啥样子，不知道买桌面支架还是买啥', ' 下单了', ' 行'] | nan | 电脑 | 语音聊天 | 其他类型 | 无 | 无 | nan | nan | nan | 无 | 中性 中性 无 中性 满意 满意 | nan | nan | nan | nan | nan |
+| [' 这个和DM40有什么区别 哪个好', ' 主播用的几号'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 对比展示类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 200x和200w声音效果差距大么', ' 300x和200w哪个更好', ' 介绍一下200w', ' 您给讲讲3号，谢谢', ' 3号，刚才发错了', ' 谢谢'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 对比展示类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 麦克风里面自带声卡吗？', ' 口播', ' maono影音旗舰店', ' 主播现在用的是哪个调试数据名字'] | nan | 声卡/调音台/混音器 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 娱乐直播适合吗', ' 电脑'] | nan | 电脑 | 电脑直播 | 直播用 | 其他直播 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 3 号能讲解一下吗，电脑播', ' 娱乐', ' 唱歌', ' 好的，谢谢', ' 听听变音', ' 电脑游戏用哪个', ' 1号可以变音吗', ' [爱心]'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 无、音质/音效类 | 中性 无 无 满意 中性 中性 中性 无 | nan | nan | nan | nan | nan |
+| [' 手机用不了吗', ' 音播', ' 语音'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 只用来录人声文案，一号链接够吗'] | nan | 无 | 录音 | 录音用 | 无画面，纯录音 | 播客录制 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 聊天游戏唱歌 哪个？', ' 电脑'] | nan | 电脑 | 直播聊天 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' pm，461', ' 没链接吗？', ' pd200x这个怎么样', ' 打游戏', ' 懂了', ' 打游戏用', ' 主播播到几点', ' 听不着了', ' 双十一有优惠吗'] | nan | 游戏机 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 无 中性 中性 无 满意 无 中性 不满意 中性 | nan | nan | nan | nan | nan |
+| [' 可以调音吗', ' 电脑', ' 怎么调', ' 游戏直播', ' 我已经拍了', ' 忘记了', ' 也是直播间买的', ' 好', ' 1个星期', ' 好'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 操控/安装类、无 | 满意 | nan | nan | nan | nan | nan |
+| [' 调音软件是什么', ' 买过了', ' 和so8配套吗', ' 不是', ' 这个搭配什么声卡', ' 手机直播，唱歌聊天'] | nan | 手机 | 手机直播 | 直播用 | 唱歌直播 | 无 | nan | nan | nan | 无、连接/兼容类 | 中性 满意 中性 无 中性 中性 | nan | nan | nan | nan | nan |
+| [' 1号带声卡吗', ' 自带软件是嘛', ' 直播', ' 电脑', ' 游戏', ' Ok'] | nan | 电脑 | 电脑直播 | 直播用 | 带货直播 (纯销售) | 带货直播 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 能听听变声效果么', ' 哪个变声效果好，我准备拍了', ' 还得买声卡啊', ' 也行，变得好就行', ' 我电脑配置好像不太行', ' 5-12600k-32-512-4060-27寸屏幕', ' 这个配置', ' 好，我试试'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类、无 | 中性 满意 中性 满意 中性 中性 中性 满意 | nan | nan | nan | nan | nan |
+| [' 手机可以用吗', ' 1号', ' 录音解说', ' 那能调音吗', ' 安卓', ' 好', ' 到了联系客服', ' 用另一个手机拍的'] | nan | 手机 | 录音 | 录音用 | 有画面录音 | 其他视频拍摄录制 | nan | nan | nan | 连接/兼容类、功能/模式类 | 满意 | nan | nan | nan | nan | nan |
+| [' 还有变音啊[捂脸]', ' 变声的那个是几号来着？'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 怎么变', ' 你试下', ' 7号'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 手机可以吗', ' 美食', ' 视频配音', ' 讲解'] | nan | 手机 | 配音 | 录音用 | 有画面录音 | 室内-商业配音录制 | nan | nan | nan | 连接/兼容类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 唱歌哪个，电脑', ' 正在看详情'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 哈咯', ' 你好主播 我想买一套麦+声卡1k左右 然后声卡能推动490pro的 有么', ' 1.2k吧', ' 对的', ' 9号链接就是一整套对么 那这个麦如果换其他的能优惠么', ' 麦要求没那么高', ' 对 因为我主要我这个麦就是为了打游戏说话[捂脸]', ' 但是便宜的套餐推我耳机不太行啊', ' 我本来买了义度xa20', ' 但是没有麦 我就想着不要耳放直接买声卡算了[流泪]', ' 用了个180的 现在只有60的了', ' 有点超预算了说实话[捂脸]', ' 是的1200', ' 没有', ' 我是为了耳机买的[流泪]', ' 那啥我先问一下 机架是啥', ' [发呆]', ' 嗷 懂了 相当于一个eq', ' 懂了懂了', ' 我就接一下买7还是买9', ' 纠结一下', ' 懂 pro和原版区别', ' 能说话的就行[看]'] | nan | 声卡/调音台/混音器 | 游戏语音 | 游戏用 | 游戏语音对话 | 游戏语音，不需要直播 | nan | nan | nan | 无 | 满意 | nan | nan | nan | nan | nan |
+| [' pm，461', ' 没链接吗？', ' pd200x这个怎么样', ' 打游戏', ' 懂了', ' 打游戏用', ' 主播播到几点', ' 听不着了', ' 双十一有优惠吗'] | nan | 游戏机 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 无 中性 中性 无 满意 无 中性 不满意 中性 | nan | nan | nan | nan | nan |
+| [' 那个配音有磁性一点的麦克风是哪一款？', ' 1号试过了，效果不好'] | nan | 无 | 配音 | 录音用 | 无 | 无 | nan | nan | nan | 无 | 中性 不满意 | nan | nan | nan | nan | nan |
+| [' 十号可以讲一下么', ' 直播说话有声音就可以', ' 声音清晰就行'] | nan | 无 | 直播聊天 | 直播用 | 直播聊天 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 10号带声卡吗'] | nan | 声卡/调音台/混音器 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 一号能变声么？就是男生变女生那种。你能试下么？', ' 200X动圈跟电容DM40动圈有什么区别[看]', ' 说反了', ' 抱歉', ' 就是动圈麦跟电容麦有什么区别', ' 我虚要直播游戏，唱歌，配音', ' 有', ' 我选200X行不行[捂脸]', ' 我知道了，等我到时候拍', ' 感谢[看]', ' 一号笔记本电脑可以用不'] | nan | 电脑 | 直播唱歌 | 直播用 | 其他直播 | 无 | nan | nan | nan | 音质/音效类、对比展示类、连接/兼容类 | 中性 中性 中性 无 中性 中性 中性 中性 满意 满意 中性 | nan | nan | nan | nan | nan |
+| [' 电脑直播适合哪个', ' 娱乐', ' 唱歌', ' 6号说说', ' 是电脑直播', ' 能连无线耳机嘛', ' 没声卡，有特效音吗', ' 1号也带声卡嘛', ' 离得远说话，能听到嘛', ' 没声卡，用无线耳机，不能直播用吧', ' 我用无线耳机，电脑直播，没声卡，直接用6号，直播能听到嘛', ' 那我耳机插到哪里，我能听到直播间里面的嘛', ' 我刚刚在你直播间拍了', ' 我是无线的', ' 是直播无线耳机，平常耳机是插在声卡上的', ' 不接', ' 我是担心我无线耳机能不能用'] | nan | 电脑 | 电脑直播 | 直播用 | 唱歌直播 | 唱歌直播-室内 | nan | nan | nan | 连接/兼容类、功能/模式类、降噪/环境声类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 以旧换新怎么弄', ' 以前买了D200了，现在有看上MD40 ，有点心疼，价格看着心痛', ' 一个降噪厉害了一个能娱乐么', ' 是的，刚才200跟40，看你说的，好像就两种不同功能', ' 就是突然间想玩一下变声的效果，有时候恶搞一下队友', ' 我电脑配置还行吧', ' 需要安装软件是吧', ' 需要二次付费么'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 降噪/环境声类、音质/音效类、操控/安装类 | 中性 | nan | nan | nan | nan | nan |
+| [' e2声卡怎么接电脑啊？', ' e2声卡可以接采集卡吗'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类 | 中性 | nan | nan | nan | nan | nan |
+| [' 能把麦克风拉满我听听'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 主播能唱个歌么'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 无 | nan | nan | nan | nan | nan |
+| [' 只能电脑？', ' 你接下手机看下', ' 能监听嘛', ' 这是变身器嘛', ' 是问你是不是可以变声器功能，怎么沟通不了'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类、功能/模式类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 10号链接怎么样'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 可以插充电座', ' 下单送主播', ' 还可以用它唱忐忑', ' 这个连接很容易吧', ' 你像网上卖的十几二十块钱的那个type c数据线，插在麦克风上是有电流声的', ' 但是咱们这个线有点硬啊', ' 你们此前直播的那个妹子被我整抑郁了', ' 没声音了', ' 那个扎头发的那个，把头发盘起来的那个', ' 是是你前前一个', ' 我除了有你家的400X之外，我还有领夹麦呢，领夹麦就是专门对付手机的'] | nan | 手机 | K歌 | 直播用 | 带货直播 (纯销售) | 带货直播 | nan | nan | nan | 操控/安装类、无、音质/音效类、连接/兼容类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 你可以两个麦都用一下我听一下不', ' 就是现在你面前这个', ' 和刚刚那个', ' 对', ' 哈哈哈哈好吧', ' 直播用的', ' 游戏的', ' 主要是想降噪声音没那么刺耳', ' 你现在用的是1号嘛'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 对比展示类、降噪/环境声类 | 中性 | nan | nan | nan | nan | nan |
+| [' 手机用哪款', ' 手机唱歌', ' 可以试唱一下吗', ' 买了一千多那套，不插耳机，怎么听音乐', ' 插电脑上的', ' 客服没人回信息'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 1号就只有个麦吗', ' 包调试吗', ' 直播伴侣，现在总设置不好，声音有点杂'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无、操控/安装类、音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 苹果平板游戏直播可以输出吗', ' 苹果平板游戏直播可以输出吗', ' 苹果平板游戏直播可以输出变声吗', ' 有的', ' Win11', ' 那电脑可以变声输入苹果平板可以L', ' 吗', ' 手机那个合适', ' 唱歌语音', ' 8号挑手机吗', ' 我自己的话筒可以用吗', ' 也是用声卡的话筒', ' 之前有个男主播推荐我买', '7', ' 7号', ' 套一还是二', ' 我现在买', ' 一二都可以是吧', ' 包含唱歌是吧', ' 麦克风怎么没有你们其他的好看[捂脸]', '3', ' 我想要3号链接的', ' 麦克风', ' 不能啊', ' 我晚上直播', ' 就是说话要好听清晰就好', '77777', ' 调一下吧', ' 麦更好是吧', ' 我现在去买了啊', ' 笔记本电脑可以吧', ' 耳机有什么要求', ' 好', ' 明天能到吗', ' 明晚教我用一下', ' okok', ' 顺丰可以吗', ' okok', ' 帮我调好是吧', ' 行'] | nan | 电脑Windows | 直播聊天 | 直播用 | 游戏直播 | 游戏类型的直播 | nan | nan | nan | 音质/音效类、连接/兼容类、操控/安装类 | 满意 | nan | nan | nan | nan | nan |
+| [' 这是电脑声卡 还是手机声卡'] | nan | 声卡/调音台/混音器 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 笔记本也不能变声吗'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 5号链接变声效果主播方便演示一下么'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 直播唱歌用哪个？', ' 手机', ' 有点贵', ' 是的，纯手机'] | nan | 手机 | 直播唱歌 | 直播用 | 唱歌直播 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 能变音吗', ' 变声演示一下'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 主播我问下 打游戏用哪个 没杂音', ' 动圈有无线吗', ' 已经买了'] | nan | 游戏机 | 游戏语音 | 游戏用 | 无 | 无 | nan | nan | nan | 降噪/环境声类、无 | 中性 中性 满意 | nan | nan | nan | nan | nan |
+| [' 第一次自己真人配音，真难听[捂脸][捂脸][捂脸]'] | nan | 无 | 配音 | 录音用 | 无画面，纯录音 | 无 | nan | nan | nan | 无 | 不满意 | nan | nan | nan | nan | nan |
+| [' 10号链接是什么效果'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 这个和DM40有什么区别 哪个好', ' 主播用的几号'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 对比展示类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 对门装修噪音特别大 这个话筒能保证直播间听不到吗', ' 电钻的噪声都能去除吗'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 降噪/环境声类 | 中性 | nan | nan | nan | nan | nan |
+| [' 最新的声卡和最新的麦克风分别是哪个'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 这是动圈麦吗这个叫[捂脸][捂脸][捂脸]', ' 是个青年音吗[看]', ' 适合'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 跟pd100x有什么区别', ' 10号什么效果', ' 打游戏', ' 外放的', ' 旁边室友说话收得进吗', ' 桌面可以调多少高度', ' 拉不到脸上是吗', ' 支架的话可以拉脸上', ' 悬挂好点好像', ' 是的', ' 可以藏线吗'] | nan | 游戏机 | 无 | 无 | 无 | 无 | nan | nan | nan | 对比展示类、降噪/环境声类、操控/安装类 | 中性 | nan | nan | nan | nan | nan |
+| [' 男生的声音有哪些可以看一下不', ' 对的'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 手机能支持了吗', ' iPhone17'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类 | 中性 | nan | nan | nan | nan | nan |
+| [' 影视解说适合哪个'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 这个直接用吗', ' 不搭配声卡吗？', ' 手机', ' 好的'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 你这个是几号链接', ' 口播', ' 下了', ' 调音怎么调', ' 好'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无、操控/安装类 | 中性 无 无 中性 满意 | nan | nan | nan | nan | nan |
+| [' mm40live录吉他弹唱怎么样', ' dm', ' 要录低频', ' 有手机录歌的麦克风吗', ' 手机直接带混响的'] | nan | 手机 | 弹唱 | 录音用 | 无画面，纯录音 | 唱歌录制 | nan | nan | nan | 音质/音效类、功能/模式类 | 中性 | nan | nan | nan | nan | nan |
+| [' 1和2什么区别', ' 口播 游戏直播 这些', ' OK', ' 都是什么功能的？'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 对比展示类、功能/模式类 | 中性 | nan | nan | nan | nan | nan |
+| [' 帅哥好[玫瑰]'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 满意 | nan | nan | nan | nan | nan |
+| [' 声音不好听，感觉高音好高', ' 日常使用'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类、无 | 不满意 | nan | nan | nan | nan | nan |
+| [' 唱歌好听的买哪个', ' 直播唱歌', ' 手机', ' 没有'] | nan | 手机 | 直播唱歌 | 直播用 | 唱歌直播 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 你好！拍视频修复声音，让声音更洪亮！选哪个？', ' 是的', ' 走动', ' 苹果15'] | nan | 手机 | 视频录制 | 录音用 | 有画面录音 | 其他视频拍摄录制 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 声卡400多？', ' 什么软件', ' 变声？'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 功能/模式类 | 中性 | nan | nan | nan | nan | nan |
+| [' 桌面好还是悬臂好', ' 直播', ' 游戏', ' 1号', ' 玩游戏能用吗', ' 送手机支架吗'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 这是链接电脑吗？', ' 哪一款音质更好更干净降噪', ' 蓝牙是哪个套餐 所有套餐都支持蓝牙吗', ' 好的明白了'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类、音质/音效类、降噪/环境声类、无 | 中性 中性 中性 满意 | nan | nan | nan | nan | nan |
+| [' 你好我买的就是pd200的那个 用直播伴侣直播需要调试什么吗'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 操控/安装类 | 中性 | nan | nan | nan | nan | nan |
+| [' 变音的那个，购买后可以购买其他音色吗？只有6种音色？'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 音质/音效类 | 中性 | nan | nan | nan | nan | nan |
+| [' 直播连麦能用吗', ' 变声的可以用吗', ' 电脑要什么配置'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类、功能/模式类、无 | 中性 | nan | nan | nan | nan | nan |
+| [' 直播推荐哪一个呢', ' 唱歌配音之类的', ' 有', ' 预算没那么高[流泪]pd200x可以么', ' 那是拍几号呢'] | nan | 无 | 配音 | 直播用 | 唱歌直播 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 声卡带麦克风娱乐直播', ' 电脑', ' 声卡呢', ' 要分开买吗？', ' 里面带声卡是吧'] | nan | 电脑 | 电脑直播 | 直播用 | 其他直播 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 讲下2号链接', ' 我苹果8直播的话，怎么弄', ' 讲下', ' 退货包运费吗', ' 退货包运费吗'] | nan | 手机 | 手机直播 | 直播用 | 带货直播 (纯销售) | 带货直播 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 11号连接499的能优惠吗？', ' 11号领了20的券，还能优惠吗？', ' 某鱼899的比你们家便宜200多，我不需要功能那么多的，要是你们还能优惠的话就在你这买了[呲牙]', ' 领夹麦', ' 好的'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 唱歌主播适合哪个链接', ' 六号可以唱歌直播不'] | nan | 无 | 直播唱歌 | 直播用 | 唱歌直播 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 看一下1号的全套', ' 有无线话筒吗', ' [赞]'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 满意、中性、无 | nan | nan | nan | nan | nan |
+| [' DM20直播用好用不[看]', ' 聊天的'] | nan | 无 | 直播聊天 | 直播用 | 直播聊天 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 是动圈降噪还是？', ' 我忘记了', ' 电容不降噪对吧'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 降噪/环境声类 | 中性 | nan | nan | nan | nan | nan |
+| [' 有调音台吗', ' 电台主播', ' 1号不用声卡么', ' 2号用接声卡么', ' 2号可以调音色么', ' 3号呢', ' 好的', ' 2号里推荐哪个', ' 电脑', ' 2号就一根线么', ' 连电脑或者手机，700多的就够用吗', ' 华为的', ' 拍了', ' 领券拍多少', ' 我去看看', ' 领不了啊，就这样吧', ' 刚拍的2号，收到货怎么精调，客服调还是有教程'] | nan | 声卡/调音台/混音器 | 电台 | 直播用 | 带货直播 (纯销售) | 带货直播 | nan | nan | nan | 功能/模式类、连接/兼容类、操控/安装类 | 满意 | nan | nan | nan | nan | nan |
+| [' 读书博主，用哪款声卡和麦克风', ' 8号链接拍哪款麦克风？', ' 读书博主', ' 麦克风够用是吧', ' 我不会领', ' 我领取了，价格没变啊', ' 我要拍的，怎么优惠券不能用啊', ' 教教我优惠券怎么用啊', ' 我没有用', '970.1', ' 读书博主，8号链接', ' 7号套餐和8号套餐有什么区别'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 可以用在舞台演出吗', ' 不是', ' 换班儿点卡的够狠的', ' 不能对标 sm58'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 无 无 中性 | nan | nan | nan | nan | nan |
+| [' 要做电脑直播，这边选哪个？', ' 电台游戏', ' 2号有混响什么的吗？', ' 声卡呢？', ' 好的👌🏻', ' 2号链接有机架声卡吗？'] | nan | 电脑 | 电脑直播 | 直播用 | 其他直播 | 无 | nan | nan | nan | 无、音质/音效类 | 中性 无 中性 中性 满意 中性 | nan | nan | nan | nan | nan |
+| [' 公会电脑直播可以用吗？', ' 就是声卡', ' 大量要', ' 准备开一个公', ' 最少20个吧', ' 如果大量要的话，你这边可以有专属调试人员吗？', ' 然后调试时间时期可以有多久？', ' 就一个月啊？'] | nan | 电脑 | 电脑直播 | 直播用 | 其他直播 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 麦克风里面自带声卡吗？', ' 口播', ' maono影音旗舰店', ' 主播现在用的是哪个调试数据名字'] | nan | 声卡/调音台/混音器 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性  | nan | nan | nan | nan | nan |
+| [' PD200有降噪吗', ' 直播打游戏推荐那个？', ' 送耳机是吗', ' 女生推荐啥颜色', ' 悬臂支架能夹多厚的桌子', ' 下完单了', ' 请尽快发货'] | nan | 无 | 无 | 无 | 无 | 无 | nan | nan | nan | 降噪/环境声类、无 | 满意 | nan | nan | nan | nan | nan |
+| [' 录课，直播，用哪款好一点', ' 台式'] | nan | 电脑 | 上网课 | 直播用 | 直播知识分享 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+| [' 不下软件能直接用吗', ' 我笔记本风扇声有点大一号链接的这个杂音会有影响吗', ' 行', ' ok'] | nan | 电脑 | 无 | 无 | 无 | 无 | nan | nan | nan | 无、降噪/环境声类 | 中性 中性 满意 无 | nan | nan | nan | nan | nan |
+| [' 可以用吉他吗', ' ✓', ' 接', ' 手机'] | nan | 手机 | 无 | 无 | 无 | 无 | nan | nan | nan | 连接/兼容类 | 中性 | nan | nan | nan | nan | nan |
+| [' 有没有链接ipad的无线领夹麦克风', ' Ipad都是typed接口', ' 一拖一就够了'] | nan | 平板 | 无 | 无 | 无 | 无 | nan | nan | nan | 无 | 中性 | nan | nan | nan | nan | nan |
+
+    </script>
+</body>
+</html>
