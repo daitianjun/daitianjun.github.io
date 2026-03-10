@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抖音弹幕数据分析报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        .kpi-card {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+        }
+        .kpi-card-secondary {
+            background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+            color: white;
+        }
+        .kpi-card-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        .kpi-card-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 标题部分 -->
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">抖音弹幕数据分析报告</h1>
+            <p class="text-gray-600">基于闪克直播间用户互动数据</p>
+            <p class="text-sm text-gray-500 mt-2">报告生成时间: 2026-03-10 02:43:39</p>
+        </header>
+
+        <!-- 数据概述部分 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">一、数据概述</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="kpi-card rounded-lg p-6 text-center hover-scale fade-in">
+                    <h3 class="text-lg font-semibold mb-2">弹幕总数</h3>
+                    <p class="text-3xl font-bold" id="totalComments">0</p>
+                </div>
+                <div class="kpi-card-secondary rounded-lg p-6 text-center hover-scale fade-in">
+                    <h3 class="text-lg font-semibold mb-2">观众数量</h3>
+                    <p class="text-3xl font-bold" id="totalAudience">0</p>
+                </div>
+                <div class="kpi-card-success rounded-lg p-6 text-center hover-scale fade-in">
+                    <h3 class="text-lg font-semibold mb-2">人均弹幕数</h3>
+                    <p class="text-3xl font-bold" id="avgComments">0</p>
+                </div>
+                <div class="kpi-card-warning rounded-lg p-6 text-center hover-scale fade-in">
+                    <h3 class="text-lg font-semibold mb-2">平均满意度</h3>
+                    <p class="text-3xl font-bold" id="avgSatisfaction">0%</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">场景一级分类分布</h3>
+                    <div class="chart-container">
+                        <canvas id="sceneDistributionChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">设备类型分布</h3>
+                    <div class="chart-container">
+                        <canvas id="deviceTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 按场景分类分析部分 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">二、按场景分类分析</h2>
+            
+            <div class="mb-6">
+                <div class="flex flex-wrap gap-2">
+                    <button class="scene-tab bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition" data-scene="游戏用">游戏用</button>
+                    <button class="scene-tab bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition" data-scene="录音用">录音用</button>
+                    <button class="scene-tab bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition" data-scene="直播用">直播用</button>
+                    <button class="scene-tab bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition" data-scene="其他">其他</button>
+                </div>
+            </div>
+            
+            <div id="sceneAnalysis" class="bg-white rounded-lg shadow-md p-6 fade-in">
+                <!-- 场景分析内容将通过JavaScript动态加载 -->
+            </div>
+        </section>
+
+        <!-- 用户痛点与犹豫点分析部分 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">三、用户痛点与犹豫点分析</h2>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">主要痛点</h3>
+                        <ul class="space-y-2" id="painPoints">
+                            <!-- 痛点列表将通过JavaScript动态加载 -->
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">犹豫点</h3>
+                        <ul class="space-y-2" id="hesitationPoints">
+                            <!-- 犹豫点列表将通过JavaScript动态加载 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 典型用户弹幕样本分析部分 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">四、典型用户弹幕样本分析</h2>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户弹幕</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">场景一级分类</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户画像</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">需求分析</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">满意度</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="sampleComments">
+                            <!-- 样本数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主播与运营建议部分 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">五、主播与运营建议</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">直播展示建议</h3>
+                    <ul class="space-y-3" id="displaySuggestions">
+                        <!-- 展示建议将通过JavaScript动态加载 -->
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">产品组合策略</h3>
+                    <ul class="space-y-3" id="productSuggestions">
+                        <!-- 产品策略将通过JavaScript动态加载 -->
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">运营策略建议</h3>
+                    <ul class="space-y-3" id="operationSuggestions">
+                        <!-- 运营策略将通过JavaScript动态加载 -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据摘要部分 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">数据摘要</h2>
+            
+            <div class="bg-white rounded-lg shadow-md p-6 overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">观众评论</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产品型号/几号链接</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">设备类型</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">使用场景</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">场景一级分类</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">场景二级分类</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">展示效果满意度</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="dataTable">
+                        <!-- 数据表格将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 数据处理和分析逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            // 解析原始数据
+            const rawData = document.querySelector('pre').textContent;
+            const rows = rawData.split('\n').filter(row => row.trim() !== '');
+            
+            // 提取表头和数据
+            const headers = rows[0].split('|').map(h => h.trim());
+            const data = rows.slice(1).map(row => {
+                const values = row.split('|').map(v => v.trim());
+                const obj = {};
+                headers.forEach((header, index) => {
+                    // 处理数组格式的评论
+                    if (header === '观众评论') {
+                        obj[header] = values[index] ? JSON.parse(values[index].replace(/'/g, '"')) : [];
+                    } else {
+                        obj[header] = values[index] === 'nan' ? null : values[index];
+                    }
+                });
+                return obj;
+            });
+            
+            // 数据统计
+            const totalComments = data.length;
+            const audienceCount = new Set();
+            data.forEach(row => {
+                row['观众评论'].forEach(comment => {
+                    // 简单提取用户ID或标识符
+                    const audienceId = comment.match(/(\d{10,}|[a-zA-Z0-9_]{3,})/) ? comment.match(/(\d{10,}|[a-zA-Z0-9_]{3,})/)[0] : comment.substring(0, 10);
+                    audienceCount.add(audienceId);
+                });
+            });
+            const totalAudience = audienceCount.size;
+            const avgComments = (totalComments / totalAudience).toFixed(1);
+            
+            // 满意度统计
+            const satisfactionCount = {
+                '满意': 0,
+                '中性': 0,
+                '不满意': 0,
+                '无': 0
+            };
+            data.forEach(row => {
+                const satisfaction = row['主播所展示效果是否满意'];
+                if (satisfaction) {
+                    satisfactionCount[satisfaction] = (satisfactionCount[satisfaction] || 0) + 1;
+                }
+            });
+            const totalSatisfaction = satisfactionCount['满意'] + satisfactionCount['中性'] + satisfactionCount['不满意'];
+            const avgSatisfaction = totalSatisfaction > 0 ? Math.round((satisfactionCount['满意'] / totalSatisfaction) * 100) : 0;
+            
+            // 更新KPI数据
+            document.getElementById('totalComments').textContent = totalComments;
+            document.getElementById('totalAudience').textContent = totalAudience;
+            document.getElementById('avgComments').textContent = avgComments;
+            document.getElementById('avgSatisfaction').textContent = avgSatisfaction + '%';
+            
+            // 场景一级分类统计
+            const sceneDistribution = {};
+            data.forEach(row => {
+                const scene = row['场景一级分类'];
+                if (scene && scene !== '无') {
+                    sceneDistribution[scene] = (sceneDistribution[scene] || 0) + 1;
+                }
+            });
+            
+            // 设备类型统计
+            const deviceTypeDistribution = {};
+            data.forEach(row => {
+                const deviceType = row['设备类型'];
+                if (deviceType && deviceType !== '无') {
+                    deviceTypeDistribution[deviceType] = (deviceTypeDistribution[deviceType] || 0) + 1;
+                }
+            });
+            
+            // 创建场景分布饼图
+            const sceneCtx = document.getElementById('sceneDistributionChart').getContext('2d');
+            new Chart(sceneCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(sceneDistribution),
+                    datasets: [{
+                        data: Object.values(sceneDistribution),
+                        backgroundColor: [
+                            '#6366f1',
+                            '#8b5cf6',
+                            '#3b82f6',
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+            
+            // 创建设备类型分布条形图
+            const deviceCtx = document.getElementById('deviceTypeChart').getContext('2d');
+            new Chart(deviceCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(deviceTypeDistribution),
+                    datasets: [{
+                        label: '提及频次',
+                        data: Object.values(deviceTypeDistribution),
+                        backgroundColor: '#6366f1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // 场景分析数据
+            const sceneAnalysisData = {
+                '游戏用': {
+                    deviceTypes: {},
+                    secondaryCategories: {},
+                    tertiaryCategories: {},
+                    displayNeeds: [],
+                    satisfaction: {}
+                },
+                '录音用': {
+                    deviceTypes: {},
+                    secondaryCategories: {},
+                    tertiaryCategories: {},
+                    displayNeeds: [],
+                    satisfaction: {}
+                },
+                '直播用': {
+                    deviceTypes: {},
+                    secondaryCategories: {},
+                    tertiaryCategories: {},
+                    displayNeeds: [],
+                    satisfaction: {}
+                },
+                '其他': {
+                    deviceTypes: {},
+                    secondaryCategories: {},
+                    tertiaryCategories: {},
+                    displayNeeds: [],
+                    satisfaction: {}
+                }
+            };
+            
+            // 填充场景分析数据
+            data.forEach(row => {
+                const primaryScene = row['场景一级分类'];
+                if (primaryScene && primaryScene !== '无' && sceneAnalysisData[primaryScene]) {
+                    const deviceType = row['设备类型'];
+                    if (deviceType && deviceType !== '无') {
+                        sceneAnalysisData[primaryScene].deviceTypes[deviceType] = (sceneAnalysisData[primaryScene].deviceTypes[deviceType] || 0) + 1;
+                    }
+                    
+                    const secondaryScene = row['场景二级分类'];
+                    if (secondaryScene && secondaryScene !== '无') {
+                        sceneAnalysisData[primaryScene].secondaryCategories[secondaryScene] = (sceneAnalysisData[primaryScene].secondaryCategories[secondaryScene] || 0) + 1;
+                    }
+                    
+                    const tertiaryScene = row['场景三级分类'];
+                    if (tertiaryScene && tertiaryScene !== '无') {
+                        sceneAnalysisData[primaryScene].tertiaryCategories[tertiaryScene] = (sceneAnalysisData[primaryScene].tertiaryCategories[tertiaryScene] || 0) + 1;
+                    }
+                    
+                    const displayNeed = row['想让主播展示什么效果'];
+                    if (displayNeed && displayNeed !== '无') {
+                        sceneAnalysisData[primaryScene].displayNeeds.push(displayNeed);
+                    }
+                    
+                    const satisfaction = row['主播所展示效果是否满意'];
+                    if (satisfaction) {
+                        sceneAnalysisData[primaryScene].satisfaction[satisfaction] = (sceneAnalysisData[primaryScene].satisfaction[satisfaction] || 0) + 1;
+                    }
+                }
+            });
+            
+            // 场景标签页切换功能
+            const sceneTabs = document.querySelectorAll('.scene-tab');
+            const sceneAnalysisDiv = document.getElementById('sceneAnalysis');
+            
+            sceneTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 更新标签样式
+                    sceneTabs.forEach(t => {
+                        t.classList.remove('bg-indigo-600', 'text-white');
+                        t.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+                    this.classList.remove('bg-gray-200', 'text-gray-700');
+                    this.classList.add('bg-indigo-600', 'text-white');
+                    
+                    // 更新场景分析内容
+                    const scene = this.dataset.scene;
+                    updateSceneAnalysis(scene);
+                });
+            });
+            
+            // 更新场景分析内容
+            function updateSceneAnalysis(scene) {
+                const data = sceneAnalysisData[scene];
+                
+                // 设备类型分析
+                let deviceTypesHtml = '<h4 class="text-lg font-semibold text-gray-800 mb-3">设备类型分析</h4><ul class="mb-4">';
+                const sortedDeviceTypes = Object.entries(data.deviceTypes).sort((a, b) => b[1] - a[1]);
+                sortedDeviceTypes.forEach(([device, count]) => {
+                    deviceTypesHtml += `<li class="mb-1"><span class="font-medium">${device}:</span> ${count}次提及</li>`;
+                });
+                deviceTypesHtml += '</ul>';
+                
+                // 二级分类分析
+                let secondaryCategoriesHtml = '<h4 class="text-lg font-semibold text-gray-800 mb-3">二级分类分析</h4><ul class="mb-4">';
+                const sortedSecondaryCategories = Object.entries(data.secondaryCategories).sort((a, b) => b[1] - a[1]);
+                sortedSecondaryCategories.forEach(([category, count]) => {
+                    secondaryCategoriesHtml += `<li class="mb-1"><span class="font-medium">${category}:</span> ${count}次提及</li>`;
+                });
+                secondaryCategoriesHtml += '</ul>';
+                
+                // 三级分类分析
+                let tertiaryCategoriesHtml = '<h4 class="text-lg font-semibold text-gray-800 mb-3">三级分类分析</h4><ul class="mb-4">';
+                const sortedTertiaryCategories = Object.entries(data.tertiaryCategories).sort((a, b) => b[1] - a[1]);
+                sortedTertiaryCategories.forEach(([category, count]) => {
+                    tertiaryCategoriesHtml += `<li class="mb-1"><span class="font-medium">${category}:</span> ${count}次提及</li>`;
+                });
+                tertiaryCategoriesHtml += '</ul>';
+                
+                // 展示效果分析
+                let displayNeedsHtml = '<h4 class="text-lg font-semibold text-gray-800 mb-3">展示效果分析</h4><ul class="mb-4">';
+                const displayNeedCount = {};
+                data.displayNeeds.forEach(need => {
+                    displayNeedCount[need] = (displayNeedCount[need] || 0) + 1;
+                });
+                const sortedDisplayNeeds = Object.entries(displayNeedCount).sort((a, b) => b[1] - a[1]);
+                sortedDisplayNeeds.forEach(([need, count]) => {
+                    displayNeedsHtml += `<li class="mb-1"><span class="font-medium">${need}:</span> ${count}次提及</li>`;
+                });
+                displayNeedsHtml += '</ul>';
+                
+                // 满意度分析
+                let satisfactionHtml = '<h4 class="text-lg font-semibold text-gray-800 mb-3">满意度分析</h4>';
+                const satisfactionTotal = Object.values(data.satisfaction).reduce((sum, count) => sum + count, 0);
+                if (satisfactionTotal > 0) {
+                    satisfactionHtml += '<div class="mb-4">';
+                    Object.entries(data.satisfaction).forEach(([satisfaction, count]) => {
+                        const percentage = Math.round((count / satisfactionTotal) * 100);
+                        satisfactionHtml += `<div class="mb-2"><span class="font-medium">${satisfaction}:</span> ${count}次 (${percentage}%)</div>`;
+                        
+                        // 添加进度条
+                        satisfactionHtml += `<div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-${satisfaction === '满意' ? 'green' : satisfaction === '中性' ? 'yellow' : 'red'}-500 h-2.5 rounded-full" style="width: ${percentage}%"></div>
+                        </div>`;
+                    });
+                    satisfactionHtml += '</div>';
+                } else {
+                    satisfactionHtml += '<p class="text-gray-500">暂无满意度数据</p>';
+                }
+                
+                // 组合所有内容
+                sceneAnalysisDiv.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            ${deviceTypesHtml}
+                            ${secondaryCategoriesHtml}
+                        </div>
+                        <div>
+                            ${tertiaryCategoriesHtml}
+                            ${displayNeedsHtml}
+                            ${satisfactionHtml}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 初始化场景分析
+            updateSceneAnalysis('游戏用');
+            
+            // 用户痛点与犹豫点分析
+            const painPoints = [
+                '预算限制：许多用户表示预算有限，如"有点超预算了说实话[捂脸]"',
+                '设备兼容性：用户担心设备是否兼容，如"手机不能用？"',
+                '功能不了解：用户对产品功能不清楚，如"声卡什么作用？"',
+                '效果担忧：用户担心实际效果与描述不符，如"回来要是不行的话可以退就行"',
+                '安装调试复杂：用户担心安装调试困难，如"装驱动吗"'
+            ];
+            
+            const hesitationPoints = [
+                '型号选择困难：用户在不同型号间犹豫，如"纠结一下买7还是买9"',
+                '参数不理解：用户对技术参数不理解，如"动圈和电容有什么区别，哪个好"',
+                '担心效果：用户担心效果达不到预期，如"会不会唱歌的会好听吗"',
+                '性价比疑虑：用户担心价格与价值不匹配，如"你家的是不设备参数好？别家的便宜，差别在哪里"'
+            ];
+            
+            const painPointsHtml = painPoints.map(point => `<li class="flex items-start"><span class="text-red-500 mr-2">•</span><span>${point}</span></li>`).join('');
+            const hesitationPointsHtml = hesitationPoints.map(point => `<li class="flex items-start"><span class="text-yellow-500 mr-2">•</span><span>${point}</span></li>`).join('');
+            
+            document.getElementById('painPoints').innerHTML = painPointsHtml;
+            document.getElementById('hesitationPoints').innerHTML = hesitationPointsHtml;
+            
+            // 典型用户弹幕样本
+            const sampleCommentsData = [
+                {
+                    comment: ['哈咯', '你好主播 我想买一套麦+声卡1k左右 然后声卡能推动490pro的 有么'],
+                    scene: '游戏用',
+                    userImage: '游戏玩家，预算有限',
+                    needs: '需要一套适合游戏语音的麦克风和声卡组合',
+                    satisfaction: '满意'
+                },
+                {
+                    comment: ['日常手机直播，收音，没有噪音的声卡有吗。', '唱歌呢'],
+                    scene: '直播用',
+                    userImage: '手机直播新手',
+                    needs: '手机直播设备，要求收音清晰无噪音',
+                    satisfaction: '满意'
+                },
+                {
+                    comment: ['录歌用那种比较好', '电脑用的'],
+                    scene: '录音用',
+                    userImage: '音乐爱好者',
+                    needs: '适合电脑录音的设备',
+                    satisfaction: '中性'
+                },
+                {
+                    comment: ['电容麦和动圈麦什么区别', '在家直播游戏用，买哪款？'],
+                    scene: '游戏用',
+                    userImage: '游戏直播新手',
+                    needs: '了解麦克风类型差异，选择适合游戏直播的设备',
+                    satisfaction: '中性'
+                }
+            ];
+            
+            const sampleCommentsHtml = sampleCommentsData.map(sample => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${sample.comment.join('; ')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sample.scene}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sample.userImage}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sample.needs}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${sample.satisfaction === '满意' ? 'bg-green-100 text-green-800' : 
+                              sample.satisfaction === '中性' ? 'bg-yellow-100 text-yellow-800' : 
+                              'bg-red-100 text-red-800'}">
+                            ${sample.satisfaction}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('sampleComments').innerHTML = sampleCommentsHtml;
+            
+            // 主播与运营建议
+            const displaySuggestions = [
+                '游戏场景：重点展示麦克风降噪效果和声卡推动能力，现场演示游戏语音清晰度',
+                '直播场景：展示不同设备组合下的收音效果，特别是手机直播的便捷性',
+                '录音场景：展示设备的专业性和音质表现，突出录音干声的纯净度',
+                '通用建议：针对新手用户，简化技术术语，多用直观演示代替参数说明'
+            ];
+            
+            const productSuggestions = [
+                '游戏用户：推荐"麦克风+声卡"基础套装，强调性价比和即插即用',
+                '直播用户：根据设备类型（手机/电脑）推荐相应套装，突出便携性和稳定性',
+                '录音用户：推荐专业录音设备套装，强调音质和专业性',
+                '套餐策略：开发"入门级"、"进阶级"和"专业级"三档套餐，满足不同预算用户'
+            ];
+            
+            const operationSuggestions = [
+                '场景化直播：针对不同场景（游戏/直播/录音）安排专门的直播时段',
+                '用户互动：增加"设备对比"环节，直观展示不同设备效果差异',
+                '社群运营：建立用户社群，分享使用技巧和心得，增强用户粘性',
+                '售后保障：强化7天无理由退换和质保承诺，降低用户购买风险'
+            ];
+            
+            const displaySuggestionsHtml = displaySuggestions.map(suggestion => `<li class="flex items-start"><span class="text-indigo-500 mr-2">•</span><span>${suggestion}</span></li>`).join('');
+            const productSuggestionsHtml = productSuggestions.map(suggestion => `<li class="flex items-start"><span class="text-green-500 mr-2">•</span><span>${suggestion}</span></li>`).join('');
+            const operationSuggestionsHtml = operationSuggestions.map(suggestion => `<li class="flex items-start"><span class="text-purple-500 mr-2">•</span><span>${suggestion}</span></li>`).join('');
+            
+            document.getElementById('displaySuggestions').innerHTML = displaySuggestionsHtml;
+            document.getElementById('productSuggestions').innerHTML = productSuggestionsHtml;
+            document.getElementById('operationSuggestions').innerHTML = operationSuggestionsHtml;
+            
+            // 数据表格
+            const dataTableHtml = data.slice(0, 20).map(row => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row['观众评论'].slice(0, 2).join('; ')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row['产品型号/几号链接'] || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row['设备类型'] || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row['使用场景'] || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row['场景一级分类'] || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row['场景二级分类'] || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${row['主播所展示效果是否满意'] === '满意' ? 'bg-green-100 text-green-800' : 
+                              row['主播所展示效果是否满意'] === '中性' ? 'bg-yellow-100 text-yellow-800' : 
+                              row['主播所展示效果是否满意'] === '不满意' ? 'bg-red-100 text-red-800' : 
+                              'bg-gray-100 text-gray-800'}">
+                            ${row['主播所展示效果是否满意'] || '无'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('dataTable').innerHTML = dataTableHtml;
+        });
+    </script>
+</body>
+</html>
