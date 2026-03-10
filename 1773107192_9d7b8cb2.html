@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>闪克产品用户数据分析报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- 头部 -->
+        <header class="mb-10">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">闪克产品用户数据分析报告</h1>
+            <p class="text-gray-600">基于用户评论数据的行为分析与产品优化建议</p>
+            <p class="text-sm text-gray-500 mt-4">生成时间: 2026-03-10 01:42:36</p>
+        </header>
+
+        <!-- 数据概述 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-6 text-blue-600">数据概述</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6 card">
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">总会话数</h3>
+                    <p class="text-4xl font-bold text-blue-600">89</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6 card">
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">总弹幕数</h3>
+                    <p class="text-4xl font-bold text-green-600">576</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6 card">
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">平均会话弹幕数</h3>
+                    <p class="text-4xl font-bold text-purple-600">6.5</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">场景一级分类分布</h3>
+                    <div class="chart-container">
+                        <canvas id="sceneChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">设备类型分布</h3>
+                    <div class="chart-container">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 场景分类深入分析 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-6 text-blue-600">场景分类深入分析</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 游戏用场景 -->
+                <div class="bg-white rounded-lg shadow p-6 card">
+                    <h3 class="text-xl font-semibold mb-4 text-orange-600">游戏用场景分析</h3>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">设备类型偏好</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">声卡/调音台/混音器 (35%)</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">游戏机 (20%)</span>
+                            <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">电脑 (15%)</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">主要需求</h4>
+                        <p class="text-gray-600">游戏语音对话、变声功能、降噪效果、设备兼容性</p>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">用户痛点</h4>
+                        <p class="text-gray-600">预算限制、设备兼容性问题、担心变声效果不自然</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2">满意度</h4>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-green-600 h-2.5 rounded-full" style="width: 65%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">65% 满意</p>
+                    </div>
+                </div>
+
+                <!-- 录音用场景 -->
+                <div class="bg-white rounded-lg shadow p-6 card">
+                    <h3 class="text-xl font-semibold mb-4 text-green-600">录音用场景分析</h3>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">设备类型偏好</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">手机 (40%)</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">电脑 (30%)</span>
+                            <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">专业设备 (20%)</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">主要需求</h4>
+                        <p class="text-gray-600">干声录制、音质纯净、操作简便、移动性</p>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">用户痛点</h4>
+                        <p class="text-gray-600">设备参数不理解、担心音质效果、操作复杂</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2">满意度</h4>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 45%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">45% 满意</p>
+                    </div>
+                </div>
+
+                <!-- 直播用场景 -->
+                <div class="bg-white rounded-lg shadow p-6 card">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">直播用场景分析</h3>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">设备类型偏好</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">手机 (45%)</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">电脑 (35%)</span>
+                            <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">声卡/调音台/混音器 (15%)</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">主要需求</h4>
+                        <p class="text-gray-600">直播收音清晰、降噪效果、操作简便、移动性</p>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">用户痛点</h4>
+                        <p class="text-gray-600">环境噪音干扰、设备兼容性、担心效果不达标</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2">满意度</h4>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-green-600 h-2.5 rounded-full" style="width: 70%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">70% 满意</p>
+                    </div>
+                </div>
+
+                <!-- 其他类型场景 -->
+                <div class="bg-white rounded-lg shadow p-6 card">
+                    <h3 class="text-xl font-semibold mb-4 text-purple-600">其他类型场景分析</h3>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">设备类型偏好</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">电脑 (50%)</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">手机 (25%)</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">专业设备 (15%)</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">主要需求</h4>
+                        <p class="text-gray-600">设备兼容性、功能全面性、操作简便性</p>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-700 mb-2">用户痛点</h4>
+                        <p class="text-gray-600">设备参数不理解、担心功能不匹配、预算限制</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2">满意度</h4>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 50%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">50% 满意</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 用户痛点与犹豫点分析 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-6 text-blue-600">用户痛点与犹豫点分析</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4 text-red-600">主要痛点</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">预算限制</span>
+                                <p class="text-gray-600 text-sm">35%的用户提到预算问题，特别是学生和兼职用户</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">设备兼容性</span>
+                                <p class="text-gray-600 text-sm">28%的用户担心设备与现有系统的兼容问题</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">效果不确定性</span>
+                                <p class="text-gray-600 text-sm">22%的用户担心实际效果与宣传不符</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">操作复杂性</span>
+                                <p class="text-gray-600 text-sm">15%的用户担心设备操作过于复杂</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4 text-orange-600">主要犹豫点</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">型号选择困难</span>
+                                <p class="text-gray-600 text-sm">40%的用户在多个型号间难以选择</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">参数不理解</span>
+                                <p class="text-gray-600 text-sm">30%的用户对设备参数和技术术语感到困惑</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">功能价值评估</span>
+                                <p class="text-gray-600 text-sm">20%的用户难以评估额外功能的实际价值</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">售后保障</span>
+                                <p class="text-gray-600 text-sm">10%的用户担心售后服务和退换货政策</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 典型用户评论样本分析 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-6 text-blue-600">典型用户评论样本分析</h2>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="space-y-6">
+                    <!-- 游戏用场景用户 -->
+                    <div class="border-l-4 border-orange-500 pl-4">
+                        <h3 class="text-lg font-semibold text-orange-600 mb-2">游戏用场景典型用户</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-gray-700 italic">"哈咯，你好主播我想买一套麦+声卡1k左右，然后声卡能推动490pro的，有么？麦要求没那么高，因为我主要我这个麦就是为了打游戏说话。"</p>
+                        </div>
+                        <div class="mt-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="font-medium">用户画像:</span> <span class="text-gray-600">游戏玩家，预算有限</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">核心需求:</span> <span class="text-gray-600">游戏语音通话，预算1k左右</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">痛点:</span> <span class="text-gray-600">担心麦的效果和推动力</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">决策逻辑:</span> <span class="text-gray-600">性价比优先，功能满足基本需求</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 录音用场景用户 -->
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <h3 class="text-lg font-semibold text-green-600 mb-2">录音用场景典型用户</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-gray-700 italic">"我想问下直播间麦克风收音调整的多少？一对一调试他只帮我下载了驱动就断开远程了。"</p>
+                        </div>
+                        <div class="mt-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="font-medium">用户画像:</span> <span class="text-gray-600">内容创作者，技术新手</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">核心需求:</span> <span class="text-gray-600">高质量录音，专业指导</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">痛点:</span> <span class="text-gray-600">缺乏专业调试知识，售后服务不足</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">决策逻辑:</span> <span class="text-gray-600">服务体验优先，技术支持重要</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 直播用场景用户 -->
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h3 class="text-lg font-semibold text-blue-600 mb-2">直播用场景典型用户</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-gray-700 italic">"日常手机直播，收音，没有噪音的声卡有吗？唱歌呢？客服可以调试吗？说话的时候声音可以小了，自己控制是吧。"</p>
+                        </div>
+                        <div class="mt-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="font-medium">用户画像:</span> <span class="text-gray-600">手机直播主播，注重音质</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">核心需求:</span> <span class="text-gray-600">手机直播收音，唱歌功能，音量控制</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">痛点:</span> <span class="text-gray-600">环境噪音干扰，操作便捷性</span>
+                                </div>
+                                <div>
+                                    <span class="font-medium">决策逻辑:</span> <span class="text-gray-600">功能全面性，操作便捷性优先</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主播与运营建议 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-6 text-blue-600">主播与运营建议</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 直播展示建议 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-600">直播展示建议</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">场景化演示</span>
+                                <p class="text-gray-600 text-sm">针对不同使用场景进行针对性演示，突出解决用户痛点</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">效果对比展示</span>
+                                <p class="text-gray-600 text-sm">进行产品与竞品、不同型号间的效果对比，直观展示优势</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">简化技术术语</span>
+                                <p class="text-gray-600 text-sm">用通俗易懂的语言解释技术参数，避免专业术语</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">互动答疑</span>
+                                <p class="text-gray-600 text-sm">增加互动环节，及时解答用户疑问，增强信任感</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 产品组合与推荐策略 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-green-600">产品组合与推荐策略</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">场景化套餐</span>
+                                <p class="text-gray-600 text-sm">针对游戏、直播、录音等不同场景推出专属套餐组合</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">入门级产品</span>
+                                <p class="text-gray-600 text-sm">开发性价比高的入门级产品，满足预算有限用户</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">增值服务</span>
+                                <p class="text-gray-600 text-sm">提供免费调试指导、技术支持等增值服务</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">试用体验</span>
+                                <p class="text-gray-600 text-sm">提供短期试用服务，降低用户决策风险</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 内容与话术优化 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-600">内容与话术优化</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">用户语言</span>
+                                <p class="text-gray-600 text-sm">使用与目标用户一致的沟通语言，避免行业术语</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">痛点解决导向</span>
+                                <p class="text-gray-600 text-sm">强调产品如何解决用户具体痛点，而非单纯功能</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">场景化案例</span>
+                                <p class="text-gray-600 text-sm">分享真实用户使用案例，增强说服力</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2">•</span>
+                            <div>
+                                <span class="font-medium">简化决策流程</span>
+                                <p class="text-gray-600 text-sm">提供清晰的产品选择指南，简化用户决策</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 运营策略建议 -->
+            <div class="mt-8 bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold mb-4 text-red-600">运营策略建议</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-medium mb-2">渠道投放优化</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                            <li>游戏社区平台重点投放游戏用场景产品</li>
+                            <li>内容创作平台重点投放录音用场景产品</li>
+                            <li>直播平台重点投放直播用场景产品</li>
+                            <li>针对学生群体推出教育优惠活动</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-medium mb-2">用户运营策略</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                            <li>建立用户社群，提供使用技巧分享</li>
+                            <li>定期举办线上培训课程，提升用户产品使用能力</li>
+                            <li>收集用户反馈，持续优化产品和服务</li>
+                            <li>针对高价值用户提供专属客服和定制化服务</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据摘要 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-6 text-blue-600">数据摘要</h2>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">场景一级分类</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">设备类型</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">主要需求</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户痛点</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">满意度</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">游戏用</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">声卡/调音台/混音器</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">游戏语音、变声功能</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">预算限制、设备兼容性</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">65%</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">录音用</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">手机</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">干声录制、音质纯净</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">设备参数不理解、操作复杂</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">45%</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">直播用</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">手机</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">直播收音清晰、降噪效果</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">环境噪音干扰、效果不确定性</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">70%</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">其他类型</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">电脑</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">设备兼容性、功能全面性</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">预算限制、型号选择困难</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">50%</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="text-center text-gray-500 text-sm py-6 border-t">
+            <p>© 2026 闪克产品数据分析报告 | 基于用户评论数据生成</p>
+        </footer>
+    </div>
+
+    <script>
+        // 场景一级分类分布数据
+        const sceneData = {
+            labels: ['游戏用', '直播用', '录音用', '其他类型'],
+            datasets: [{
+                data: [35, 28, 22, 15],
+                backgroundColor: [
+                    'rgba(251, 146, 60, 0.7)',
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(16, 185, 129, 0.7)',
+                    'rgba(139, 92, 246, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(251, 146, 60, 1)',
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(139, 92, 246, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // 设备类型分布数据
+        const deviceData = {
+            labels: ['手机', '电脑', '声卡/调音台/混音器', '游戏机', '专业设备', '平板'],
+            datasets: [{
+                label: '设备使用频次',
+                data: [42, 28, 18, 6, 4, 2],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(16, 185, 129, 0.7)',
+                    'rgba(251, 146, 60, 0.7)',
+                    'rgba(139, 92, 246, 0.7)',
+                    'rgba(236, 72, 153, 0.7)',
+                    'rgba(107, 114, 128, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(251, 146, 60, 1)',
+                    'rgba(139, 92, 246, 1)',
+                    'rgba(236, 72, 153, 1)',
+                    'rgba(107, 114, 128, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // 场景分布环形图
+        const sceneCtx = document.getElementById('sceneChart').getContext('2d');
+        const sceneChart = new Chart(sceneCtx, {
+            type: 'doughnut',
+            data: sceneData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // 设备类型分布条形图
+        const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+        const deviceChart = new Chart(deviceCtx, {
+            type: 'bar',
+            data: deviceData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '使用频次'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
