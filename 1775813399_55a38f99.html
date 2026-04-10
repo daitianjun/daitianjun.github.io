@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天猫 - 闪克鼎创专卖店客服聊天月报</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://gcore.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .tab-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; }
+        .chart-container { position: relative; height: 300px; }
+        @media (max-width: 768px) {
+            .chart-container { height: 250px; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-center mb-4">天猫 - 闪克鼎创专卖店客服聊天月报</h1>
+            <div class="flex justify-center items-center gap-8 text-center">
+                <div class="bg-white/20 rounded-xl px-6 py-3">
+                    <div class="text-4xl font-bold" id="totalCount">200</div>
+                    <div class="text-sm text-blue-100">总咨询量</div>
+                </div>
+                <div class="bg-white/20 rounded-xl px-6 py-3">
+                    <div class="text-4xl font-bold" id="deviceCount">264</div>
+                    <div class="text-sm text-blue-100">设备连接类型</div>
+                </div>
+                <div class="bg-white/20 rounded-xl px-6 py-3">
+                    <div class="text-4xl font-bold" id="sceneCount">239</div>
+                    <div class="text-sm text-blue-100">使用场景</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-10">
+        <div class="container mx-auto px-4">
+            <div class="flex overflow-x-auto scrollbar-hide">
+                <button onclick="showTab('device')" class="tab-btn tab-active px-4 py-4 font-medium text-gray-600 hover:text-blue-600 transition whitespace-nowrap" data-tab="device">
+                    📱 连接设备分析
+                </button>
+                <button onclick="showTab('scene')" class="tab-btn px-4 py-4 font-medium text-gray-600 hover:text-blue-600 transition whitespace-nowrap" data-tab="scene">
+                    🎯 使用场景分析
+                </button>
+                <button onclick="showTab('focus')" class="tab-btn px-4 py-4 font-medium text-gray-600 hover:text-blue-600 transition whitespace-nowrap" data-tab="focus">
+                    🔍 关注点Top10
+                </button>
+                <button onclick="showTab('buy')" class="tab-btn px-4 py-4 font-medium text-gray-600 hover:text-blue-600 transition whitespace-nowrap" data-tab="buy">
+                    ✅ 购买理由Top3
+                </button>
+                <button onclick="showTab('notbuy')" class="tab-btn px-4 py-4 font-medium text-gray-600 hover:text-blue-600 transition whitespace-nowrap" data-tab="notbuy">
+                    ❌ 未购原因Top3
+                </button>
+                <button onclick="showTab('aftersale')" class="tab-btn px-4 py-4 font-medium text-gray-600 hover:text-blue-600 transition whitespace-nowrap" data-tab="aftersale">
+                    🔧 售后问题Top3
+                </button>
+                <button onclick="showTab('summary')" class="tab-btn px-4 py-4 font-medium text-gray-600 hover:text-blue-600 transition whitespace-nowrap" data-tab="summary">
+                    📊 问题总结分析
+                </button>
+                <button onclick="showTab('suggestion')" class="tab-btn px-4 py-4 font-medium text-gray-600 hover:text-blue-600 transition whitespace-nowrap" data-tab="suggestion">
+                    💡 业务建议
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 连接设备分析 -->
+        <section id="tab-device" class="tab-content">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-blue-600 rounded-full"></span>
+                连接设备分析
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- 饼图 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">设备连接类型占比分布</h3>
+                    <div class="chart-container">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+                </div>
+                <!-- 表格 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">设备连接类型统计</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-gray-600">设备类型</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">频次</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deviceTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- 设备详情卡片 -->
+            <div class="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="deviceDetails"></div>
+        </section>
+
+        <!-- 使用场景分析 -->
+        <section id="tab-scene" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-green-600 rounded-full"></span>
+                使用场景分析
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- 饼图 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">使用场景占比分布</h3>
+                    <div class="chart-container">
+                        <canvas id="sceneChart"></canvas>
+                    </div>
+                </div>
+                <!-- 表格 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">使用场景统计</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-gray-600">使用场景</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">频次</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sceneTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- 场景详情卡片 -->
+            <div class="mt-6 grid md:grid-cols-2 gap-4" id="sceneDetails"></div>
+        </section>
+
+        <!-- 关注点Top10 -->
+        <section id="tab-focus" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-purple-600 rounded-full"></span>
+                用户关注点Top 10
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- 柱状图 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">关注点频次排名</h3>
+                    <div class="chart-container">
+                        <canvas id="focusChart"></canvas>
+                    </div>
+                </div>
+                <!-- 表格 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">关注点详细统计</h3>
+                    <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3 text-center text-gray-600">排名</th>
+                                    <th class="px-4 py-3 text-left text-gray-600">关注点</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">频次</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="focusTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 购买理由Top3 -->
+        <section id="tab-buy" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-emerald-600 rounded-full"></span>
+                购买理由Top 3
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">购买理由频次</h3>
+                    <div class="chart-container">
+                        <canvas id="buyChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">购买理由统计</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-gray-600">购买理由</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">频次</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="buyTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                        <h4 class="font-semibold text-emerald-800 mb-2">💡 主要原因简析</h4>
+                        <p class="text-sm text-emerald-700">用户购买的主要原因是产品能够解决其<strong>安装使用问题</strong>，说明产品功能满足了用户的基本使用需求；其次<strong>价格优惠或赠品</strong>也是重要的购买驱动因素。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 未购原因Top3 -->
+        <section id="tab-notbuy" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-red-600 rounded-full"></span>
+                未购原因Top 3
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">未购原因频次</h3>
+                    <div class="chart-container">
+                        <canvas id="notbuyChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">未购原因统计</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-gray-600">未购原因</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">频次</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="notbuyTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                        <h4 class="font-semibold text-red-800 mb-2">⚠️ 主要原因简析</h4>
+                        <p class="text-sm text-red-700">用户放弃购买的首要原因是<strong>安装使用问题</strong>，表明产品上手难度较高，操作复杂度影响了购买决策；其次<strong>设备兼容性</strong>问题也是重要阻碍因素。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 售后问题Top3 -->
+        <section id="tab-aftersale" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-orange-600 rounded-full"></span>
+                售后问题Top 3
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">售后问题类型分布</h3>
+                    <div class="chart-container">
+                        <canvas id="aftersaleChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">售后问题统计</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-gray-600">售后问题</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">频次</th>
+                                    <th class="px-4 py-3 text-center text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="aftersaleTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                        <h4 class="font-semibold text-orange-800 mb-2">🔧 主要原因简析</h4>
+                        <p class="text-sm text-orange-700">用户最关心的是<strong>详细的安装使用指导</strong>，说明产品说明书可能不够直观；<strong>退换货政策的宽松度</strong>和<strong>远程技术支持</strong>也是用户高度关注的售后诉求。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 问题总结分析 -->
+        <section id="tab-summary" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-indigo-600 rounded-full"></span>
+                售后问题总结
+            </h2>
+            <div class="space-y-6">
+                <!-- 问题类型卡片 -->
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-bold">40%</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">1. 设备连接与操作问题</h3>
+                            <p class="text-gray-600 mb-3">用户收到货后无法独立完成基础设置，主要卡在"配对"和"软件调试"环节，对无线麦克风的连接原理理解不足。</p>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-700 mb-2">高频场景：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• <strong>配对失败</strong>：收到货后接收器蓝灯一直闪烁/慢闪，无法进入配对模式</li>
+                                    <li>• <strong>软件调试困难</strong>：不知道需下载Maono Link APP才能调节降噪/增益</li>
+                                    <li>• <strong>接口功能误解</strong>：误以为无线麦克风是蓝牙连接，或误以为麦克风可以直接连声卡/音箱</li>
+                                    <li>• <strong>电脑操作障碍</strong>：苹果电脑用户找不到声音设置位置</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3 bg-yellow-50 rounded-lg p-3">
+                                <h4 class="font-semibold text-yellow-800 mb-1">典型话术：</h4>
+                                <p class="text-sm text-yellow-700 italic">"蓝色灯亮录视频没声了"、"下载了不会用"、"这个有点麻烦啊"、"苹果电脑哪里找"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-bold">25%</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">2. 接口匹配与兼容性问题</h3>
+                            <p class="text-gray-600 mb-3">用户购买时未确认设备接口类型，或对不同接口版本的适用范围不清楚。</p>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-700 mb-2">高频场景：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• <strong>接口买错</strong>：苹果手机误买Type-C版，或Lightning口手机买了新版接口</li>
+                                    <li>• <strong>设备兼容困惑</strong>：不确定自己的手机型号对应哪种接收器</li>
+                                    <li>• <strong>声卡连接误解</strong>：不清楚麦克风、声卡、相机的连接逻辑</li>
+                                    <li>• <strong>系统限制</strong>：Win7系统不支持Maono Link软件，需Win10以上</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3 bg-yellow-50 rounded-lg p-3">
+                                <h4 class="font-semibold text-yellow-800 mb-1">典型话术：</h4>
+                                <p class="text-sm text-yellow-700 italic">"我是华为手机，怎么插头插不进去"、"vivo手机"、"这个能搭配你们的e2声卡使用吗"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-bold">20%</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">3. 收音效果与功能预期偏差</h3>
+                            <p class="text-gray-600 mb-3">产品实际表现与用户心理预期不符，多因对产品功能边界了解不清所致。</p>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-700 mb-2">高频场景：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• <strong>功能边界不清</strong>：想用麦克风"实时扩音"、"无线伴奏"或"双耳返监听"，但产品硬件不支持</li>
+                                    <li>• <strong>降噪效果质疑</strong>：极端嘈杂环境下仍期望完全隔音</li>
+                                    <li>• <strong>底噪问题</strong>：增益开最小仍有明显底噪</li>
+                                    <li>• <strong>效果感知偏差</strong>：录制后人声反而更小</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3 bg-yellow-50 rounded-lg p-3">
+                                <h4 class="font-semibold text-yellow-800 mb-1">典型话术：</h4>
+                                <p class="text-sm text-yellow-700 italic">"我想唱歌时听到伴奏，这个行吗"、"我感觉降噪也是一般般"、"用了和不用没区别呀"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-bold">10%</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">4. 配件相关与硬件问题</h3>
+                            <p class="text-gray-600 mb-3">用户未仔细查看包装或对配件功能理解有误，导致"少件"投诉。</p>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-700 mb-2">高频场景：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• <strong>"丢件"误报</strong>：耳机、防风棉、转接头通常藏在包装夹层或大袋子底部</li>
+                                    <li>• <strong>充电方式困惑</strong>：不知道麦克风如何充电、充电线接口位置</li>
+                                    <li>• <strong>指示灯含义不清</strong>：红灯亮/闪、绿灯/蓝灯状态各代表什么含义</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3 bg-yellow-50 rounded-lg p-3">
+                                <h4 class="font-semibold text-yellow-800 mb-1">典型话术：</h4>
+                                <p class="text-sm text-yellow-700 italic">"我里面插一对监听耳机，你这里面写的有，我这里没有"、"红灯没电了"、"这个三插头是干嘛用的"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">5%</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">5. 售后处理问题</h3>
+                            <p class="text-gray-600 mb-3">问题长期无法解决后的最终诉求，或因价格/物流产生的售后咨询。</p>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-700 mb-2">高频场景：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• <strong>退货退款</strong>：因连接失败、效果不满意、失去耐心而申请退货</li>
+                                    <li>• <strong>退差价</strong>：购买后短期内降价要求退差价</li>
+                                    <li>• <strong>配件补发</strong>：少发转接头、耳机等配件，或发错版本</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3 bg-yellow-50 rounded-lg p-3">
+                                <h4 class="font-semibold text-yellow-800 mb-1">典型话术：</h4>
+                                <p class="text-sm text-yellow-700 italic">"算了，我直接退货吧"、"为什么降价了"、"你们光视频都三四个，到底看哪个"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 业务建议 -->
+        <section id="tab-suggestion" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-teal-600 rounded-full"></span>
+                业务建议与行动点
+            </h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="text-4xl mb-4">📖</div>
+                    <h3 class="text-xl font-bold mb-3">优化新手引导流程</h3>
+                    <p class="text-blue-100 text-sm mb-4">针对咨询量最高的"安装使用问题"，建议制作更直观的视频教程，重点演示配对流程和APP使用，降低用户学习成本。</p>
+                    <div class="bg-white/20 rounded-lg p-3">
+                        <span class="text-xs font-semibold">预期效果：</span>
+                        <span class="text-sm">减少40%安装类咨询</span>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="text-4xl mb-4">🔌</div>
+                    <h3 class="text-xl font-bold mb-3">完善接口选购提示</h3>
+                    <p class="text-green-100 text-sm mb-4">针对"设备兼容性问题"（占比25%），建议在商品详情页增加接口类型选择引导，根据用户手机型号自动推荐适合的接收器。</p>
+                    <div class="bg-white/20 rounded-lg p-3">
+                        <span class="text-xs font-semibold">预期效果：</span>
+                        <span class="text-sm">降低因接口买错导致的退货</span>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="text-4xl mb-4">🎯</div>
+                    <h3 class="text-xl font-bold mb-3">明确功能边界说明</h3>
+                    <p class="text-purple-100 text-sm mb-4">针对"功能预期偏差"（占比20%），建议在产品页增加功能说明FAQ，明确哪些功能支持、哪些不支持，避免用户期望过高。</p>
+                    <div class="bg-white/20 rounded-lg p-3">
+                        <span class="text-xs font-semibold">预期效果：</span>
+                        <span class="text-sm">提升用户满意度</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 bg-white rounded-xl shadow-md p-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">📋 优先级行动计划</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-gray-600">优先级</th>
+                                <th class="px-4 py-3 text-left text-gray-600">行动项</th>
+                                <th class="px-4 py-3 text-center text-gray-600">负责部门</th>
+                                <th class="px-4 py-3 text-center text-gray-600">完成时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="px-4 py-3"><span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-bold">P0</span></td>
+                                <td class="px-4 py-3">制作配对操作视频教程（30秒内）</td>
+                                <td class="px-4 py-3 text-center">内容运营</td>
+                                <td class="px-4 py-3 text-center">本周</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-3"><span class="bg-orange-100 text-orange-600 px-2 py-1 rounded text-xs font-bold">P1</span></td>
+                                <td class="px-4 py-3">优化商品页接口选择引导</td>
+                                <td class="px-4 py-3 text-center">产品/设计</td>
+                                <td class="px-4 py-3 text-center">下周</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-3"><span class="bg-yellow-100 text-yellow-600 px-2 py-1 rounded text-xs font-bold">P2</span></td>
+                                <td class="px-4 py-3">更新功能说明FAQ文档</td>
+                                <td class="px-4 py-3 text-center">客服/产品</td>
+                                <td class="px-4 py-3 text-center">两周内</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3"><span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-bold">P3</span></td>
+                                <td class="px-4 py-3">包装内增加配件清单图示</td>
+                                <td class="px-4 py-3 text-center">仓储/物流</td>
+                                <td class="px-4 py-3 text-center">一月内</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">报告开始生成时间：2026-04-10 17:25:31</p>
+            <p class="text-xs mt-2 text-gray-500">© 2026 天猫 - 闪克鼎创专卖店 客服数据研究中心</p>
+        </div>
+    </footer>
+
+    <script>
+        // 数据
+        const totalCount = 200;
+        const deviceData = {
+            '电脑Windows': { freq: 77, desc: '主要用于直播推流（OBS、抖音直播伴侣）、专业录音、视频剪辑配口播、软件调音及搭配声卡使用。', phrases: ['用抖音电脑直播伴侣直播怎么配？', '您电脑上调节好了 保存后接手机一样有效果的~', '电脑怎么连接无线，还要下载什么软件'] },
+            '安卓手机': { freq: 50, desc: '主要用于移动直播、录音和视频拍摄，涉及Type-C直连、华为/小米/vivo等品牌兼容性。', phrases: ['安卓手机的话 直接就是可以把伴奏传到直播间的', '我用的是苹果手机，我换了华为的手机也不行', '荣耀手机'] },
+            '苹果手机': { freq: 43, desc: '主要用于移动录音和直播，咨询主要集中在Lightning接口兼容性、转接头使用、反向插拔充电等问题。', phrases: ['苹果15可以用吗', '苹果16怎么使用', '需要搭配转接头使用的 宝子'] },
+            '相机': { freq: 28, desc: '主要用于多人播客录制、相机直播和视频拍摄，咨询集中在无线麦连接、多麦收音、音画同步。', phrases: ['做多人播客，相机收录声音的话，如何设置', '一个相机可以接2个麦克风一起使用', '索尼的A7M43.5的'] },
+            '电脑macOS': { freq: 14, desc: '主要用于MacBook电脑的播客录制和音频制作，涉及软件下载、设备识别及与Mac系统的兼容问题。', phrases: ['我是苹果电脑，接电脑', 'Macbook 电脑的app怎么下？', '苹果电脑哪里找'] },
+            '声卡调音台混音器': { freq: 11, desc: '主要用于搭配麦克风提升录音效果，咨询与闪克E2声卡、Motu M2等声卡的连接方式及卡农线接口配置。', phrases: ['这个能搭配你们的e2声卡使用吗', '接声卡的话 效果更好吗', 'Motu m2，那怎样连声卡？'] },
+            '平板': { freq: 7, desc: '主要用于移动直播和户外录音，询问与iPad的兼容性和Type-C接口适配问题。', phrases: ['在家能播，拿平板到户外能播，主要降噪要到位', '我ipad和安卓是 typec的'] },
+            '手机': { freq: 1, desc: '通用手机连接咨询。', phrases: ['手机怎么连接'] },
+            '无': { freq: 13, desc: '未明确说明使用设备。', phrases: ['未说明设备类型'] }
+        };
+
+        const sceneData = {
+            '录音': { freq: 93, desc: '主要涉及播客录制、有声书录制、乐器弹唱录制、腾讯会议使用或单纯的音频保存。', phrases: ['可以先连接好录制试试看效果的', '需要调整一下降噪', '录朗诵，人声需要干净无噪音', '腾讯会议，用了麦克风效果很一般'] },
+            '直播': { freq: 44, desc: '用户主要涉及抖音直播、视频号直播、电台直播或知识分享直播，对声音的实时传输、清晰度以及监听功能有明确要求。', phrases: ['我用iPad投屏到电脑上直播，需要把它插在电脑上还是插在iPad上', '抖平台直播间', '经典老歌电台，疗愈电台', '宝，用咋们麦克风直播，一直有环境吵杂音'] },
+            '唱歌': { freq: 34, desc: '用户询问麦克风用于K歌软件、全民K歌或录歌的需求，关注混响效果、声音修饰以及是否支持伴奏同时录制。', phrases: ['这个适合在家录歌吗？', '唱歌模式 聊天模式啥的', '录歌的效果是很好的呀', '我平时唱唱歌'] },
+            '短视频制作': { freq: 28, desc: '用户主要用于拍摄Vlog、口播视频、自媒体内容或日常记录。', phrases: ['短视频配音', '如果我录制vlog这些怎么办？', '自媒体拍摄，我了解一下', '做多人播客，相机收录声音的话'] },
+            '游戏': { freq: 8, desc: '用户多为电脑游戏玩家，需要在打游戏时进行语音交流，关注声音延迟、降噪效果。', phrases: ['用这个打游戏，耳返里的游戏声音有延迟吗', '打游戏怎么可能，键盘鼠标还是能听到', '电脑游戏', '游戏 娱乐 录音 唱歌'] },
+            '无': { freq: 32, desc: '未明确说明使用场景。', phrases: ['未说明使用场景'] }
+        };
+
+        const focusData = [
+            { name: '设备兼容性问题', freq: 128 },
+            { name: '安装使用问题', freq: 120 },
+            { name: '配件问题', freq: 49 },
+            { name: '软件使用问题', freq: 40 },
+            { name: '价格或赠品问题', freq: 36 },
+            { name: '无线连接与配对问题', freq: 31 },
+            { name: '降噪问题', freq: 20 },
+            { name: '底噪及电流音问题', freq: 13 },
+            { name: '音质问题', freq: 12 },
+            { name: '监听或耳返延迟问题', freq: 12 }
+        ];
+
+        const buyData = [
+            { name: '安装使用问题', freq: 18 },
+            { name: '价格或赠品问题', freq: 15 },
+            { name: '设备兼容性问题', freq: 11 }
+        ].filter(d => d.name !== '无');
+
+        const notbuyData = [
+            { name: '安装使用问题', freq: 75 },
+            { name: '设备兼容性问题', freq: 67 },
+            { name: '价格或赠品问题', freq: 39 }
+        ];
+
+        const aftersaleData = [
+            { name: '提供详细使用/安装指导', freq: 61 },
+            { name: '退换货政策宽松', freq: 39 },
+            { name: '包调试/远程技术支持', freq: 35 }
+        ];
+
+        // 颜色配置
+        const colors = [
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(239, 68, 68, 0.8)',
+            'rgba(139, 92, 246, 0.8)',
+            'rgba(236, 72, 153, 0.8)',
+            'rgba(20, 184, 166, 0.8)',
+            'rgba(249, 115, 22, 0.8)',
+            'rgba(99, 102, 241, 0.8)',
+            'rgba(34, 197, 94, 0.8)'
+        ];
+
+        // 图表实例存储
+        let charts = {};
+
+        // Tab切换
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('tab-active'));
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('tab-active');
+        }
+
+        // 渲染设备表格
+        function renderDeviceTable() {
+            const tbody = document.getElementById('deviceTable');
+            const sortedData = Object.entries(deviceData)
+                .filter(([k, v]) => k !== '无')
+                .sort((a, b) => b[1].freq - a[1].freq);
+            const total = sortedData.reduce((sum, [_, v]) => sum + v.freq, 0);
+            
+            tbody.innerHTML = sortedData.map(([key, val], idx) => `
+                <tr class="${idx % 2 === 0 ? 'bg-gray-50' : ''}">
+                    <td class="px-4 py-2 font-medium text-gray-700">${key}</td>
+                    <td class="px-4 py-2 text-center">${val.freq}</td>
+                    <td class="px-4 py-2 text-center">${(val.freq / total * 100).toFixed(1)}%</td>
+                </tr>
+            `).join('');
+        }
+
+        // 渲染设备饼图
+        function renderDeviceChart() {
+            const sortedData = Object.entries(deviceData)
+                .filter(([k]) => k !== '无' && k !== '手机')
+                .sort((a, b) => b[1].freq - a[1].freq);
+            const labels = sortedData.map(([k]) => k);
+            const data = sortedData.map(([_, v]) => v.freq);
+
+            if (charts.device) charts.device.destroy();
+            
+            const ctx = document.getElementById('deviceChart').getContext('2d');
+            charts.device = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染设备详情
+        function renderDeviceDetails() {
+            const container = document.getElementById('deviceDetails');
+            const sortedData = Object.entries(deviceData)
+                .filter(([k]) => k !== '无')
+                .sort((a, b) => b[1].freq - a[1].freq);
+            
+            container.innerHTML = sortedData.map(([key, val], idx) => `
+                <div class="bg-white rounded-xl shadow-md p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-3 h-3 rounded-full" style="background-color: ${colors[idx % colors.length]}"></span>
+                        <h4 class="font-bold text-gray-800">${key}</h4>
+                        <span class="ml-auto bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm">${val.freq}次</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">${val.desc}</p>
+                    <div class="text-xs text-gray-500 bg-gray-50 rounded p-2">
+                        <span class="font-semibold">典型话术：</span>${val.phrases.slice(0, 2).map(p => `"${p}"`).join('、')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 渲染场景表格
+        function renderSceneTable() {
+            const tbody = document.getElementById('sceneTable');
+            const sortedData = Object.entries(sceneData)
+                .filter(([k]) => k !== '无')
+                .sort((a, b) => b[1].freq - a[1].freq);
+            const total = sortedData.reduce((sum, [_, v]) => sum + v.freq, 0);
+            
+            tbody.innerHTML = sortedData.map(([key, val], idx) => `
+                <tr class="${idx % 2 === 0 ? 'bg-gray-50' : ''}">
+                    <td class="px-4 py-2 font-medium text-gray-700">${key}</td>
+                    <td class="px-4 py-2 text-center">${val.freq}</td>
+                    <td class="px-4 py-2 text-center">${(val.freq / total * 100).toFixed(1)}%</td>
+                </tr>
+            `).join('');
+        }
+
+        // 渲染场景饼图
+        function renderSceneChart() {
+            const sortedData = Object.entries(sceneData)
+                .filter(([k]) => k !== '无')
+                .sort((a, b) => b[1].freq - a[1].freq);
+            const labels = sortedData.map(([k]) => k);
+            const data = sortedData.map(([_, v]) => v.freq);
+
+            if (charts.scene) charts.scene.destroy();
+            
+            const ctx = document.getElementById('sceneChart').getContext('2d');
+            charts.scene = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染场景详情
+        function renderSceneDetails() {
+            const container = document.getElementById('sceneDetails');
+            const sortedData = Object.entries(sceneData)
+                .filter(([k]) => k !== '无')
+                .sort((a, b) => b[1].freq - a[1].freq);
+            
+            container.innerHTML = sortedData.map(([key, val], idx) => `
+                <div class="bg-white rounded-xl shadow-md p-4 border-l-4" style="border-color: ${colors[idx % colors.length]}">
+                    <div class="flex items-center gap-2 mb-2">
+                        <h4 class="font-bold text-gray-800">${key}</h4>
+                        <span class="ml-auto bg-green-100 text-green-700 px-2 py-0.5 rounded text-sm">${val.freq}次</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">${val.desc}</p>
+                    <div class="text-xs text-gray-500 bg-gray-50 rounded p-2">
+                        <span class="font-semibold">典型话术：</span>${val.phrases.slice(0, 2).map(p => `"${p}"`).join('、')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 渲染关注点表格和图表
+        function renderFocusChart() {
+            const labels = focusData.map(d => d.name);
+            const data = focusData.map(d => d.freq);
+
+            if (charts.focus) charts.focus.destroy();
+            
+            const ctx = document.getElementById('focusChart').getContext('2d');
+            charts.focus = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '频次',
+                        data: data,
+                        backgroundColor: colors.slice(0, data.length),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 表格
+            const tbody = document.getElementById('focusTable');
+            const total = focusData.reduce((sum, d) => sum + d.freq, 0);
+            tbody.innerHTML = focusData.map((d, idx) => `
+                <tr class="${idx % 2 === 0 ? 'bg-gray-50' : ''}">
+                    <td class="px-4 py-2 text-center font-bold ${idx < 3 ? 'text-blue-600' : ''}">${idx + 1}</td>
+                    <td class="px-4 py-2">${d.name}</td>
+                    <td class="px-4 py-2 text-center">${d.freq}</td>
+                    <td class="px-4 py-2 text-center">${(d.freq / total * 100).toFixed(1)}%</td>
+                </tr>
+            `).join('');
+        }
+
+        // 渲染购买理由
+        function renderBuyChart() {
+            const labels = buyData.map(d => d.name);
+            const data = buyData.map(d => d.freq);
+
+            if (charts.buy) charts.buy.destroy();
+            
+            const ctx = document.getElementById('buyChart').getContext('2d');
+            charts.buy = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '频次',
+                        data: data,
+                        backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(59, 130, 246, 0.8)', 'rgba(139, 92, 246, 0.8)'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 表格
+            const tbody = document.getElementById('buyTable');
+            const total = buyData.reduce((sum, d) => sum + d.freq, 0);
+            tbody.innerHTML = buyData.map((d, idx) => `
+                <tr class="${idx % 2 === 0 ? 'bg-gray-50' : ''}">
+                    <td class="px-4 py-2 font-medium text-gray-700">${d.name}</td>
+                    <td class="px-4 py-2 text-center">${d.freq}</td>
+                    <td class="px-4 py-2 text-center">${(d.freq / total * 100).toFixed(1)}%</td>
+                </tr>
+            `).join('');
+        }
+
+        // 渲染未购原因
+        function renderNotbuyChart() {
+            const labels = notbuyData.map(d => d.name);
+            const data = notbuyData.map(d => d.freq);
+
+            if (charts.notbuy) charts.notbuy.destroy();
+            
+            const ctx = document.getElementById('notbuyChart').getContext('2d');
+            charts.notbuy = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '频次',
+                        data: data,
+                        backgroundColor: ['rgba(239, 68, 68, 0.8)', 'rgba(249, 115, 22, 0.8)', 'rgba(245, 158, 11, 0.8)'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 表格
+            const tbody = document.getElementById('notbuyTable');
+            const total = notbuyData.reduce((sum, d) => sum + d.freq, 0);
+            tbody.innerHTML = notbuyData.map((d, idx) => `
+                <tr class="${idx % 2 === 0 ? 'bg-gray-50' : ''}">
+                    <td class="px-4 py-2 font-medium text-gray-700">${d.name}</td>
+                    <td class="px-4 py-2 text-center">${d.freq}</td>
+                    <td class="px-4 py-2 text-center">${(d.freq / total * 100).toFixed(1)}%</td>
+                </tr>
+            `).join('');
+        }
+
+        // 渲染售后问题
+        function renderAftersaleChart() {
+            const labels = aftersaleData.map(d => d.name);
+            const data = aftersaleData.map(d => d.freq);
+
+            if (charts.aftersale) charts.aftersale.destroy();
+            
+            const ctx = document.getElementById('aftersaleChart').getContext('2d');
+            charts.aftersale = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '频次',
+                        data: data,
+                        backgroundColor: ['rgba(249, 115, 22, 0.8)', 'rgba(236, 72, 153, 0.8)', 'rgba(20, 184, 166, 0.8)'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 表格
+            const tbody = document.getElementById('aftersaleTable');
+            const total = aftersaleData.reduce((sum, d) => sum + d.freq, 0);
+            tbody.innerHTML = aftersaleData.map((d, idx) => `
+                <tr class="${idx % 2 === 0 ? 'bg-gray-50' : ''}">
+                    <td class="px-4 py-2 font-medium text-gray-700">${d.name}</td>
+                    <td class="px-4 py-2 text-center">${d.freq}</td>
+                    <td class="px-4 py-2 text-center">${(d.freq / total * 100).toFixed(1)}%</td>
+                </tr>
+            `).join('');
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderDeviceTable();
+            renderDeviceChart();
+            renderDeviceDetails();
+            renderSceneTable();
+            renderSceneChart();
+            renderSceneDetails();
+            renderFocusChart();
+            renderBuyChart();
+            renderNotbuyChart();
+            renderAftersaleChart();
+        });
+    </script>
+</body>
+</html>
