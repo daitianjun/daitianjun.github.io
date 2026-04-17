@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>京东 - 自营旗舰店客服聊天月报</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://gcore.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .tab-btn.active {
+            border-bottom: 3px solid #3b82f6;
+            color: #3b82f6;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+            }
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-8 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">京东 - 自营旗舰店客服聊天月报</h1>
+                <div class="flex flex-wrap justify-center gap-4 md:gap-8 text-lg">
+                    <div class="bg-white/20 rounded-lg px-4 py-2">
+                        <span class="opacity-80">产品:</span>
+                        <span class="font-semibold ml-2">PD100</span>
+                    </div>
+                    <div class="bg-white/20 rounded-lg px-4 py-2">
+                        <span class="opacity-80">数据概览:</span>
+                        <span class="font-semibold ml-2">721</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex overflow-x-auto scrollbar-hide">
+                <button class="tab-btn active px-4 py-4 text-sm md:text-base font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors" data-tab="device">连接设备分析</button>
+                <button class="tab-btn px-4 py-4 text-sm md:text-base font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors" data-tab="scenario">使用场景分析</button>
+                <button class="tab-btn px-4 py-4 text-sm md:text-base font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors" data-tab="focus">关注点Top10</button>
+                <button class="tab-btn px-4 py-4 text-sm md:text-base font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors" data-tab="aftersale">售后问题Top3</button>
+                <button class="tab-btn px-4 py-4 text-sm md:text-base font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors" data-tab="summary">售后问题总结</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- 连接设备分析 Tab -->
+        <div id="tab-device" class="tab-content fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">📱 连接设备分析</h2>
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- 饼图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">设备连接占比分布</h3>
+                    <div class="chart-container">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+                </div>
+                <!-- 数据表格 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">设备类型统计</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-600">设备类型</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-600">频次</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deviceTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- 详细描述 -->
+            <div class="mt-6 bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">各设备类型详细说明</h3>
+                <div class="space-y-4">
+                    <div class="border-l-4 border-blue-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">💻 电脑Windows</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【连接设备描述】</strong>主要用于直播推流、专业录音、网课教学及通过驱动软件进行深度调音。聊天记录中大量涉及OBS、直播伴侣设置、驱动下载及远程调试，表明电脑是用户最核心的使用场景。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"电脑pc 苹果都能用吗"、"请问一下 这个麦克风电脑上一直显示驱动程序无法使用"、"怎么连接电脑"、"我用obs直播"</p>
+                    </div>
+                    <div class="border-l-4 border-gray-400 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">🍎 电脑macOS</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【连接设备描述】</strong>主要用于苹果电脑用户的录音、直播场景，咨询集中在驱动兼容性、Maonolink软件支持及接口类型。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"还有是否支持macbook"、"我插在苹果电脑上"、"mac"、"直接插苹果电脑可以不"</p>
+                    </div>
+                    <div class="border-l-4 border-green-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">📱 安卓手机</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【连接设备描述】</strong>主要用于移动直播或录音，涉及Type-C直连、转接头使用及供电问题。部分用户询问了蓝牙连接的可能性。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"手机使用"、"可以直接连接手机吗"、"华为"、"oppo"、"vivo"、"我主要手机用"</p>
+                    </div>
+                    <div class="border-l-4 border-gray-300 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">🍎 苹果手机</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【连接设备描述】</strong>主要用于移动拍摄录音，主要咨询集中在Lightning或Type-C转接头的兼容性问题，以及反向插拔接口才能充电的特殊情况。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"iPhone 15 promax"、"苹果13不能用？"、"苹果17"、"连手机 录歌"、"需要搭配转接头使用的 宝子"</p>
+                    </div>
+                    <div class="border-l-4 border-purple-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">📲 平板</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【连接设备描述】</strong>主要用于移动录音或视频会议，询问兼容性及连接方式。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"您好，我用那个线给它连上了，它现在能用了，但是用ipad连的话它这个..."、"请问一下，这款麦克风可以连平板吗？腾讯会议用"</p>
+                    </div>
+                    <div class="border-l-4 border-red-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">📷 相机</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【连接设备描述】</strong>主要用于外景拍摄录音，咨询集中在3.5mm接口连接及多人共享使用。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"这个可以直接接在相机的mic口收音吗？"、"可以接相机"、"四个人共用一个可以吗？"</p>
+                    </div>
+                    <div class="border-l-4 border-yellow-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">🎛️ 声卡调音台混音器</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【连接设备描述】</strong>主要用于专业音频制作，咨询集中在6.35mm接口兼容性问题及调音台连接方式。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"支持电脑、手机、声卡设备"、"这个怎么连接调音台"、"可以插声卡吗？"、"反正我们声卡上的乐器接口是6.35的"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用场景分析 Tab -->
+        <div id="tab-scenario" class="tab-content hidden fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🎯 使用场景分析</h2>
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- 饼图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">使用场景占比分布</h3>
+                    <div class="chart-container">
+                        <canvas id="scenarioChart"></canvas>
+                    </div>
+                </div>
+                <!-- 数据表格 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">使用场景统计</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-600">使用场景</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-600">频次</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scenarioTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- 详细描述 -->
+            <div class="mt-6 bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">各场景详细说明</h3>
+                <div class="space-y-4">
+                    <div class="border-l-4 border-red-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">🎥 直播</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【场景描述】</strong>直播是占比最高的使用场景。用户涉及抖音、快手、B站等平台直播，包括电商带货、书法直播、网课直播等。用户关注直播中的声音传输、监听功能、回音问题以及直播伴侣软件的设置。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"您是直播使用嘛 宝子"、"抖音叫做浮生有点闲"、"直播过程中为什么会有回音"、"我就是想直播带货用"、"书法直播"</p>
+                    </div>
+                    <div class="border-l-4 border-purple-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">🎮 游戏</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【场景描述】</strong>游戏用户关注麦克风在游戏中的降噪效果，特别是过滤键盘声、鼠标声等环境噪音。用户追求声音清晰明亮，同时需要实时监听功能。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"我主要播三角洲游戏，声音要自然清晰"、"这个麦我玩游戏键盘声巨大"、"打游戏说话带电流声"、"跟我游戏耳机麦克风冲突吗"</p>
+                    </div>
+                    <div class="border-l-4 border-yellow-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">📹 短视频制作</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【场景描述】</strong>用户主要用于拍摄口播视频、Vlog、影视解说等内容。关注麦克风与手机、相机的连接方式，以及录制过程中可能出现的声音问题。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"拍视频用的，在抖音上拍"、"录口播视频"、"合拍视频播放只有其他声音对吧"、"做影视解说"</p>
+                    </div>
+                    <div class="border-l-4 border-blue-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">🎙️ 录音</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【场景描述】</strong>涵盖配音、有声书录制、播客制作、采访录音等多种场景。用户关注麦克风的增益调节、降噪功能、声音清晰度以及与电脑、手机的连接问题。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"为什么我拿usb线连电脑 开机他不自动识别呢"、"麦克风插上去识别不出来"、"专为播客、配音和直播场景设计"</p>
+                    </div>
+                    <div class="border-l-4 border-green-500 pl-4 py-2">
+                        <h4 class="font-semibold text-gray-800">🎤 唱歌</h4>
+                        <p class="text-gray-600 text-sm mt-1"><strong>【场景描述】</strong>用户咨询将麦克风用于全民K歌等K歌软件，或录制唱歌视频。需要麦克风连接手机并配合K歌软件使用，关注耳返监听功能。</p>
+                        <p class="text-gray-600 text-sm mt-2"><strong>●典型话术：</strong>"请问全民K歌可以用的话筒是哪个哈"、"唱歌的话 我们连接监听耳机 插麦克风上耳机口"、"全民K歌唱歌没声音啊"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关注点Top10 Tab -->
+        <div id="tab-focus" class="tab-content hidden fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🔍 用户关注点Top10</h2>
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- 柱状图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">关注点频次排名</h3>
+                    <div class="chart-container">
+                        <canvas id="focusChart"></canvas>
+                    </div>
+                </div>
+                <!-- 数据表格 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">关注点详细统计</h3>
+                    <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                        <table class="w-full text-sm">
+                            <thead class="sticky top-0 bg-gray-50">
+                                <tr>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-600">排名</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-600">关注点</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-600">频次</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="focusTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 售后问题Top3 Tab -->
+        <div id="tab-aftersale" class="tab-content hidden fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🛠️ 售后问题Top3</h2>
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- 柱状图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">售后问题频次排名</h3>
+                    <div class="chart-container">
+                        <canvas id="aftersaleChart"></canvas>
+                    </div>
+                </div>
+                <!-- 数据表格 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">售后问题详细统计</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-600">售后问题</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-600">频次</th>
+                                    <th class="text-right py-3 px-4 font-semibold text-gray-600">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody id="aftersaleTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 p-4 bg-yellow-50 rounded-lg">
+                        <h4 class="font-semibold text-yellow-800 text-sm">📌 主要原因简述：</h4>
+                        <ul class="mt-2 text-sm text-yellow-700 space-y-1">
+                            <li>• <strong>提供详细使用/安装指导</strong>：用户需要详细的使用说明和安装指南</li>
+                            <li>• <strong>退换货政策宽松</strong>：用户关注七天无理由退货和运费险政策</li>
+                            <li>• <strong>包调试/远程技术支持</strong>：用户需要专业的调试和技术支持服务</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 售后问题总结 Tab -->
+        <div id="tab-summary" class="tab-content hidden fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">📋 售后问题总结</h2>
+            <div class="space-y-6">
+                <!-- 问题分类卡片 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">🔧 1. 设备连接与操作（占比约 38%）</h3>
+                    <div class="bg-blue-50 rounded-lg p-4 mb-4">
+                        <p class="text-blue-800 text-sm"><strong>【问题描述】</strong>用户收到货后无法独立完成基础设置，主要卡在"配对连接"和"软件调试"环节，对产品使用流程存在大量困惑。</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 高频场景：</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>○ 无线连接原理不清 - 大量用户误以为无线麦克风等同于蓝牙耳机</li>
+                                <li>○ 软件驱动缺失 - 不知道必须下载Maono Link专属APP</li>
+                                <li>○ 指示灯状态困惑 - 不清楚各种颜色灯光含义</li>
+                                <li>○ 配对操作顺序混乱 - 不清楚正确操作顺序</li>
+                                <li>○ 静音键误触 - 触碰式静音键位置隐蔽</li>
+                                <li>○ 功能按键认知缺失 - 不知道旋钮、按钮、AI降噪键功能</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 典型话术：</h4>
+                            <div class="text-sm text-gray-600 space-y-1 bg-gray-50 p-3 rounded-lg">
+                                <p>"无线麦克风不需要蓝牙吗？怎么连接啊？"</p>
+                                <p>"一直亮黄灯"、"哪个是开关按键"</p>
+                                <p>"下载了软件之后，软件里的录音可以听到声音，但是在QQ或者别的软件说话就没有声音"</p>
+                                <p>"MacBook笔记本，通过Maono Link软件连接麦克风时遇到困难"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">🔌 2. 接口匹配与兼容性（占比约 22%）</h3>
+                    <div class="bg-green-50 rounded-lg p-4 mb-4">
+                        <p class="text-green-800 text-sm"><strong>【问题描述】</strong>用户购买时未确认设备接口类型，或对无线麦克风的传输原理存在误解，导致物理连接失败或设备不兼容。</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 高频场景：</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>○ 接口买错 - 苹果手机误买Type-C版麦克风</li>
+                                <li>○ 电脑连接障碍 - 仅有USB-A口，而麦克风为Type-C</li>
+                                <li>○ 功能误解 - 误以为领夹麦可以蓝牙直连手机</li>
+                                <li>○ 设备系统兼容 - 询问是否支持MacBook、鸿蒙系统等</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 典型话术：</h4>
+                            <div class="text-sm text-gray-600 space-y-1 bg-gray-50 p-3 rounded-lg">
+                                <p>"iPhone 15 promax"、"转接头是用电脑上的吗？"</p>
+                                <p>"Mac mini 用吗"、"可以连接Mac mini 用吗"</p>
+                                <p>"我电脑接口只有3.5音频接口，这个能插吗"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">🎵 3. 收音效果与功能预期偏差（占比约 18%）</h3>
+                    <div class="bg-purple-50 rounded-lg p-4 mb-4">
+                        <p class="text-purple-800 text-sm"><strong>【问题描述】</strong>产品实际表现与用户心理预期不符，多因用户不了解麦克风产品功能边界，将收音设备误当扩音设备使用。</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 高频场景：</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>○ 无声/小声故障 - 录制视频时无声音</li>
+                                <li>○ 功能边界不清 - 误将麦克风当扩音器使用</li>
+                                <li>○ 降噪效果质疑 - 在极端嘈杂环境下认为效果不明显</li>
+                                <li>○ 音质/音量预期偏差 - 从电容麦换到动圈麦后感觉音量小</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 典型话术：</h4>
+                            <div class="text-sm text-gray-600 space-y-1 bg-gray-50 p-3 rounded-lg">
+                                <p>"录出来怎么还是手机自带麦克风的声音？"</p>
+                                <p>"我想唱歌时听到伴奏，这个行吗？"</p>
+                                <p>"噪音还是很大，是不是假的？"</p>
+                                <p>"不如原来电容麦大"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">📦 4. 配件相关与硬件问题（占比约 12%）</h3>
+                    <div class="bg-orange-50 rounded-lg p-4 mb-4">
+                        <p class="text-orange-800 text-sm"><strong>【问题描述】</strong>用户未发现包装内的配件，或对充电/续航产生恐慌，或反映收到货品存在瑕疵。</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 高频场景：</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>○ "丢件"误报 - 耳机、转接头藏在包装盒夹层</li>
+                                <li>○ 充电/续航问题 - 充电指示灯含义不清</li>
+                                <li>○ 按键/功能异常 - 触摸静音键不灵敏</li>
+                                <li>○ 货损问题 - 海绵套运输损坏</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 典型话术：</h4>
+                            <div class="text-sm text-gray-600 space-y-1 bg-gray-50 p-3 rounded-lg">
+                                <p>"盒子里怎么没有耳机？"</p>
+                                <p>"这个接收器我没有收到"</p>
+                                <p>"这个金色的螺丝套是什么"</p>
+                                <p>"为什么这个充电很慢"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">💼 5. 售后处理（占比约 6%）</h3>
+                    <div class="bg-red-50 rounded-lg p-4 mb-4">
+                        <p class="text-red-800 text-sm"><strong>【问题描述】</strong>用户在产品使用遇到困难后寻求解决方案，或因各种原因要求退换货、价保、补发赠品等。</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 高频场景：</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>○ 退换货诉求 - 因不会用、效果不满意而申请退货</li>
+                                <li>○ 价保申请 - 购买后短期内降价，要求补差价</li>
+                                <li>○ 赠品/补发 - 要求补发转接头、监听耳机等</li>
+                                <li>○ 发票问题 - 发票抬头错误需重开</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">● 典型话术：</h4>
+                            <div class="text-sm text-gray-600 space-y-1 bg-gray-50 p-3 rounded-lg">
+                                <p>"算了，我直接退货吧"</p>
+                                <p>"能不能帮我换个苹果接口的？"</p>
+                                <p>"我这个麦克风现在比我买的时候便宜很多"</p>
+                                <p>"不是30天价保吗"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 总结与建议 -->
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+                    <h3 class="text-lg font-bold mb-4">📊 核心问题排序</h3>
+                    <div class="grid md:grid-cols-5 gap-4 mb-6">
+                        <div class="bg-white/20 rounded-lg p-3 text-center">
+                            <div class="text-3xl font-bold">38%</div>
+                            <div class="text-sm opacity-80">设备连接与操作</div>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-3 text-center">
+                            <div class="text-3xl font-bold">22%</div>
+                            <div class="text-sm opacity-80">接口匹配与兼容性</div>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-3 text-center">
+                            <div class="text-3xl font-bold">18%</div>
+                            <div class="text-sm opacity-80">收音效果与功能预期</div>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-3 text-center">
+                            <div class="text-3xl font-bold">12%</div>
+                            <div class="text-sm opacity-80">配件与硬件问题</div>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-3 text-center">
+                            <div class="text-3xl font-bold">6%</div>
+                            <div class="text-sm opacity-80">售后处理</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 业务建议 Tab -->
+        <div id="tab-advice" class="tab-content hidden fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">💡 业务建议与行动点</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl p-6 card-shadow border-t-4 border-blue-500">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                        <span class="text-2xl">📱</span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">优化产品详情页</h3>
+                    <p class="text-gray-600 text-sm">针对咨询量最高的设备兼容性问题，建议在详情页突出显示不同接口版本的适用设备，明确标注苹果/安卓兼容版本，减少因接口买错导致的退货。</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 card-shadow border-t-4 border-green-500">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                        <span class="text-2xl">📖</span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">完善快速上手指南</h3>
+                    <p class="text-gray-600 text-sm">在包装内显著位置放置"快速上手指南"，包含无线连接原理说明、指示灯状态图解、配对操作步骤等内容，降低用户初次使用的学习成本。</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 card-shadow border-t-4 border-purple-500">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                        <span class="text-2xl">🎥</span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">制作视频教程</h3>
+                    <p class="text-gray-600 text-sm">针对直播、游戏等高频场景，制作配套的视频教程，包含OBS设置、Maono Link软件使用、常见问题排查等内容，提供客服主动推送的教程链接。</p>
+                </div>
+            </div>
+            <div class="mt-6 bg-yellow-50 rounded-xl p-6 border border-yellow-200">
+                <h3 class="text-lg font-semibold text-yellow-800 mb-3">⚡ 紧急行动项</h3>
+                <ul class="space-y-2 text-sm text-yellow-700">
+                    <li>1. <strong>本周内</strong>：更新产品标题和主图，明确区分Lightning/Type-C版本</li>
+                    <li>2. <strong>两周内</strong>：设计新版快速上手卡片，包含配对流程图解</li>
+                    <li>3. <strong>一月内</strong>：完成直播场景使用视频教程的制作</li>
+                    <li>4. <strong>持续</strong>：收集用户常见问题，更新FAQ知识库</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 px-4 mt-12">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">报告开始生成时间: 2026-04-17 18:09:48</p>
+            <p class="text-gray-500 text-sm mt-2">© 2024 京东自营旗舰店 · 客服数据月报</p>
+        </div>
+    </footer>
+
+    <script>
+        // 数据定义
+        const totalCount = 721;
+        
+        // 连接设备数据
+        const deviceData = [
+            { name: '电脑Windows', count: 140 },
+            { name: '无', count: 105 },
+            { name: '安卓手机', count: 74 },
+            { name: '苹果手机', count: 24 },
+            { name: '相机', count: 9 },
+            { name: '声卡调音台混音器', count: 8 },
+            { name: '电脑macOS', count: 7 },
+            { name: '平板', count: 3 },
+            { name: '其他', count: 5 }
+        ];
+
+        // 使用场景数据
+        const scenarioData = [
+            { name: '录音', count: 120 },
+            { name: '直播', count: 64 },
+            { name: '游戏', count: 34 },
+            { name: '短视频制作', count: 31 },
+            { name: '唱歌', count: 23 }
+        ];
+
+        // 关注点数据 (Top 10)
+        const focusData = [
+            { name: '设备兼容性问题', count: 259 },
+            { name: '安装使用问题', count: 195 },
+            { name: '软件使用问题', count: 113 },
+            { name: '价格或赠品问题', count: 107 },
+            { name: '配件问题', count: 66 },
+            { name: '降噪问题', count: 52 },
+            { name: '无线连接与配对问题', count: 49 },
+            { name: '音质问题', count: 48 },
+            { name: '音量大小问题', count: 18 },
+            { name: '物流问题', count: 14 }
+        ];
+
+        // 售后问题数据 (Top 3)
+        const aftersaleData = [
+            { name: '提供详细使用/安装指导', count: 232 },
+            { name: '退换货政策宽松', count: 77 },
+            { name: '包调试/远程技术支持', count: 46 }
+        ];
+
+        // 颜色配置
+        const colors = [
+            '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+            '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
+        ];
+
+        // 图表配置
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        usePointStyle: true,
+                        font: { size: 12 }
+                    }
+                }
+            }
+        };
+
+        // 创建连接设备饼图
+        function createDeviceChart() {
+            const ctx = document.getElementById('deviceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: deviceData.map(d => d.name),
+                    datasets: [{
+                        data: deviceData.map(d => d.count),
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    cutout: '50%'
+                }
+            });
+
+            // 填充表格
+            const tableBody = document.getElementById('deviceTable');
+            deviceData.forEach(d => {
+                const percentage = ((d.count / totalCount) * 100).toFixed(1);
+                tableBody.innerHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-2 px-4 text-gray-700">${d.name}</td>
+                        <td class="py-2 px-4 text-right font-medium text-gray-800">${d.count}</td>
+                        <td class="py-2 px-4 text-right text-gray-500">${percentage}%</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 创建使用场景饼图
+        function createScenarioChart() {
+            const ctx = document.getElementById('scenarioChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: scenarioData.map(d => d.name),
+                    datasets: [{
+                        data: scenarioData.map(d => d.count),
+                        backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    cutout: '50%'
+                }
+            });
+
+            // 填充表格
+            const tableBody = document.getElementById('scenarioTable');
+            scenarioData.forEach(d => {
+                const percentage = ((d.count / totalCount) * 100).toFixed(1);
+                tableBody.innerHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-2 px-4 text-gray-700">${d.name}</td>
+                        <td class="py-2 px-4 text-right font-medium text-gray-800">${d.count}</td>
+                        <td class="py-2 px-4 text-right text-gray-500">${percentage}%</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 创建关注点柱状图
+        function createFocusChart() {
+            const ctx = document.getElementById('focusChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: focusData.map(d => d.name),
+                    datasets: [{
+                        label: '提及次数',
+                        data: focusData.map(d => d.count),
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        barThickness: 20
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: '#f0f0f0' }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // 填充表格
+            const tableBody = document.getElementById('focusTable');
+            focusData.forEach((d, i) => {
+                const percentage = ((d.count / totalCount) * 100).toFixed(1);
+                tableBody.innerHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-2 px-4 text-gray-500">${i + 1}</td>
+                        <td class="py-2 px-4 text-gray-700">${d.name}</td>
+                        <td class="py-2 px-4 text-right font-medium text-gray-800">${d.count}</td>
+                        <td class="py-2 px-4 text-right text-gray-500">${percentage}%</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 创建售后问题柱状图
+        function createAftersaleChart() {
+            const ctx = document.getElementById('aftersaleChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: aftersaleData.map(d => d.name),
+                    datasets: [{
+                        label: '提及次数',
+                        data: aftersaleData.map(d => d.count),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+                        borderRadius: 6,
+                        barThickness: 40
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: '#f0f0f0' }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // 填充表格
+            const tableBody = document.getElementById('aftersaleTable');
+            aftersaleData.forEach((d, i) => {
+                const percentage = ((d.count / totalCount) * 100).toFixed(1);
+                tableBody.innerHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-2 px-4 text-gray-700">${d.name}</td>
+                        <td class="py-2 px-4 text-right font-medium text-gray-800">${d.count}</td>
+                        <td class="py-2 px-4 text-right text-gray-500">${percentage}%</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Tab切换功能
+        function initTabs() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 移除所有active
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.add('hidden'));
+                    
+                    // 添加active
+                    btn.classList.add('active');
+                    const tabId = `tab-${btn.dataset.tab}`;
+                    document.getElementById(tabId).classList.remove('hidden');
+                });
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            createDeviceChart();
+            createScenarioChart();
+            createFocusChart();
+            createAftersaleChart();
+            initTabs();
+        });
+    </script>
+</body>
+</html>
